@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="it" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Link Organizer — Offline</title>
+  <meta name="description" content="Organizza i tuoi link in locale (offline), con ricerca, tag, import/export.">
+  <style>
+    :root{
+      --bg:#fafafa; --panel:#ffffff; --border:#e5e7eb;
+      --text:#111827; --sub:#6b7280;
+      --btn:#f3f4f6; --btn-text:#111827;
+      --acc:#0ea5e9; --warn-from:#ef4444; --warn-to:#f59e0b; --warn-text:#1a0c0c;
+      --radius:14px; --radius-sm:10px;
+      --space-1:6px; --space-2:10px; --space-3:14px; --space-4:18px; --space-5:24px;
+    }
+    [data-theme="dark"]{
+      --bg:#0b0e13; --panel:#0f1319; --border:#1f2732;
+      --text:#e5e7eb; --sub:#9ca3af;
+      --btn:#161b22; --btn-text:#e5e7eb;
+      --acc:#22d3ee; --warn-from:#ef4444; --warn-to:#f59e0b; --warn-text:#1a0c0c;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;background:var(--bg);color:var(--text);
+      font:15.5px/1.6 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    }
+    .container{max-width:960px;margin:0 auto;padding:var(--space-5)}
+    header{display:flex;align-items:center;gap:var(--space-3);justify-content:space-between;margin-bottom:var(--space-4)}
+    .brand{display:flex;gap:var(--space-3);align-items:center}
+    .logo{width:28px;height:28px;border-radius:8px;background:var(--acc);opacity:.15}
+    h1{margin:0;font-size:18px;font-weight:700;letter-spacing:.2px}
+    .bar{display:grid;grid-template-columns:1fr auto auto;gap:var(--space-2);align-items:center;width:100%}
+    input[type="text"], input[type="url"], textarea, select{
+      width:100%;background:var(--panel);border:1px solid var(--border);color:var(--text);
+      border-radius:var(--radius-sm);padding:10px 12px;outline:none;min-height:40px
+    }
+    input,textarea,select,button{font:inherit}
+    textarea{min-height:84px;resize:vertical}
+    button{appearance:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-weight:600;cursor:pointer;background:var(--btn);color:var(--btn-text)}
+    button.primary{background:var(--acc);border-color:var(--acc);color:white}
+    button.warn{background:linear-gradient(135deg,var(--warn-from),var(--warn-to));border:0;color:var(--warn-text)}
+    button.ghost{background:transparent}
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{outline:2px solid rgba(14,165,233,.5); outline-offset:2px}
+
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4)}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3)}
+    .actions{display:flex;gap:var(--space-2);flex-wrap:wrap}
+
+    .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:var(--space-3)}
+    .item{display:flex;flex-direction:column;gap:var(--space-2)}
+    .row{display:flex;gap:var(--space-2);align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+    .row .left{display:flex;gap:var(--space-2);align-items:flex-start;min-width:0;flex:1 1 260px}
+    .row .right{display:flex;gap:var(--space-2);flex-wrap:wrap;justify-content:flex-end}
+    .url{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+    .muted{color:var(--sub);font-size:12.5px}
+    .tag{display:inline-flex;background:transparent;border:1px solid var(--border);padding:.12rem .5rem;border-radius:999px;font-size:12px;margin-right:6px;margin-top:6px}
+    .pill{background:transparent;border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12.5px;color:var(--sub)}
+    .footer{margin-top:var(--space-4);color:var(--sub);font-size:12.5px;text-align:center}
+    .editbox{display:grid;gap:var(--space-2);margin-top:var(--space-2)}
+    .avatar{width:28px;height:28px;border-radius:8px;background:transparent;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px}
+
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr}
+      .bar{grid-template-columns:1fr;gap:var(--space-2)}
+    }
+    @media (max-width: 480px){
+      .list{grid-template-columns:1fr}
+      .container{padding:16px}
+    }
+  </style>
+
+  <!-- Favicon (fallback JPG) -->
+  <link rel="icon" type="image/jpeg" href="favicon.jpg">
+
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <h1>Link Organizer <span class="pill">Offline</span></h1>
+      </div>
+      <div class="bar">
+        <input id="q" type="text" placeholder="Cerca per titolo, summary, tag o dominio…" />
+        <select id="sort" aria-label="Ordinamento">
+          <option value="created_desc">Più recenti</option>
+          <option value="created_asc">Meno recenti</option>
+          <option value="title_asc">Titolo A→Z</option>
+          <option value="title_desc">Titolo Z→A</option>
+        </select>
+        <button id="themeBtn" title="Cambia tema">☀️/🌙</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="grid">
+        <div>
+          <label for="url">URL</label>
+          <input id="url" type="url" placeholder="https://…" />
+        </div>
+        <div>
+          <label for="title">Titolo</label>
+          <input id="title" type="text" placeholder="Titolo del link" />
+        </div>
+      </div>
+      <div style="margin-top:var(--space-3)">
+        <label for="summary">Summary / Note</label>
+        <textarea id="summary" placeholder="Breve descrizione o appunti"></textarea>
+      </div>
+      <div class="grid" style="margin-top:var(--space-3)">
+        <div>
+          <label for="tags">Tag (separate da virgola)</label>
+          <input id="tags" type="text" placeholder="es. lavoro, ai, frontend" />
+        </div>
+        <div>
+          <label>Azioni</label>
+          <div class="actions">
+            <button class="primary" id="saveBtn">Aggiungi</button>
+            <button class="ghost" id="resetBtn">Pulisci</button>
+            <span style="flex:1"></span>
+            <button id="exportBtn">Export JSON</button>
+            <label style="display:inline-flex;gap:8px;align-items:center">
+              <input id="importFile" type="file" accept="application/json" style="display:none">
+              <button id="importBtn">Import JSON</button>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div id="formError" class="muted" style="margin-top:var(--space-2);color:#dc2626"></div>
+    </section>
+
+    <section style="margin-top:var(--space-3);display:flex;gap:var(--space-2);align-items:center">
+      <span class="pill">⌘/Ctrl + K</span>
+      <span class="pill">⌘/Ctrl + S</span>
+      <span class="pill">⌘/Ctrl + E</span>
+      <span style="flex:1"></span>
+      <button id="clearAll" class="warn">Svuota tutto</button>
+    </section>
+
+    <section id="list" class="list" style="margin-top:var(--space-3)"></section>
+    <p class="footer">Tutto resta in locale (localStorage). Nessuna dipendenza esterna. Pronto per GitHub Pages.</p>
+  </div>
+
+<script>
+(function(){
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => Array.from(document.querySelectorAll(s));
+  const storeKey = "link_organizer_entries_v1";
+  const themeKey = "link_organizer_theme";
+
+  function applyTheme(t){
+    document.documentElement.setAttribute("data-theme", t);
+    localStorage.setItem(themeKey, t);
+    const btn = $("#themeBtn");
+    if(btn){ btn.textContent = (t==="dark" ? "🌙" : "☀️") + "/"+ (t==="dark" ? "☀️" : "🌙"); }
+  }
+  (function initTheme(){
+    const saved = localStorage.getItem(themeKey);
+    if(saved === "dark" || saved === "light"){ applyTheme(saved); return; }
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    applyTheme(prefersDark ? "dark" : "light");
+  })();
+  $("#themeBtn").addEventListener("click", ()=>{
+    const current = document.documentElement.getAttribute("data-theme") || "light";
+    applyTheme(current === "dark" ? "light" : "dark");
+  });
+
+  let data = load();
+  function load(){
+    try{
+      const raw = localStorage.getItem(storeKey);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ console.warn(e); return []; }
+  }
+  function persist(){ localStorage.setItem(storeKey, JSON.stringify(data)); }
+  function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+  function domain(u){
+    try{ return new URL(u).hostname.replace(/^www\./,''); }catch{return "";}
+  }
+
+  function render(){
+    const list = $("#list"); list.innerHTML = "";
+    const q = $("#q").value.trim().toLowerCase();
+    const sort = $("#sort").value;
+
+    let rows = data.filter(x => {
+      if(!q) return true;
+      const hay = [x.title, x.summary, x.url, domain(x.url), ...x.tags].join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+
+    rows.sort((a,b)=>{
+      if(sort==="created_desc") return b.created - a.created;
+      if(sort==="created_asc") return a.created - b.created;
+      if(sort==="title_asc") return a.title.localeCompare(b.title);
+      if(sort==="title_desc") return b.title.localeCompare(a.title);
+      return 0;
+    });
+
+    for(const row of rows){
+      const el = document.createElement("div");
+      el.className = "card item";
+      el.innerHTML = `
+        <div class="row">
+          <div class="left">
+            <div class="avatar" aria-hidden="true">🔗</div>
+            <div style="min-width:0">
+              <div style="font-weight:600">${escapeHtml(row.title||"(senza titolo)")}</div>
+              <div class="muted url">${escapeHtml(row.url)}</div>
+            </div>
+          </div>
+          <div class="right">
+            <button data-act="open" data-id="${row.id}">Apri</button>
+            <button data-act="copy" data-id="${row.id}">Copia URL</button>
+            <button data-act="edit" data-id="${row.id}">Modifica</button>
+            <button class="warn" data-act="del" data-id="${row.id}">Elimina</button>
+          </div>
+        </div>
+        <div class="muted" style="word-break:break-word">${escapeHtml(row.summary||"")}</div>
+        <div>${row.tags.map(t=>`<span class="tag">#${escapeHtml(t)}</span>`).join("")}</div>
+        <div class="muted">${new Date(row.updated||row.created).toLocaleString()}</div>
+      `;
+      list.appendChild(el);
+
+      const editBox = document.createElement("div");
+      editBox.className = "editbox";
+      editBox.style.display = "none";
+      editBox.innerHTML = `
+        <input type="text" value="${escapeAttr(row.title)}" data-field="title" aria-label="Titolo">
+        <input type="url" value="${escapeAttr(row.url)}" data-field="url" aria-label="URL">
+        <textarea data-field="summary" aria-label="Summary / Note">${escapeHtml(row.summary||"")}</textarea>
+        <input type="text" value="${escapeAttr(row.tags.join(", "))}" data-field="tags" aria-label="Tag">
+        <div class="actions">
+          <button data-act="saveEdit" data-id="${row.id}" class="primary">Salva</button>
+          <button data-act="cancelEdit" data-id="${row.id}">Annulla</button>
+        </div>
+      `;
+      el.appendChild(editBox);
+    }
+  }
+
+  function escapeHtml(s){
+    return (s??"").toString().replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  }
+  function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
+
+  function resetForm(){
+    $("#url").value = "";
+    $("#title").value = "";
+    $("#summary").value = "";
+    $("#tags").value = "";
+    $("#formError").textContent = "";
+  }
+
+  function validate(url, title){
+    if(!url) return "URL obbligatorio";
+    try{ new URL(url); }catch{return "URL non valido";}
+    if(!title) return "Titolo obbligatorio";
+    return "";
+  }
+
+  $("#saveBtn").addEventListener("click", ()=>{
+    const url = $("#url").value.trim();
+    const title = $("#title").value.trim();
+    const summary = $("#summary").value.trim();
+    const tags = $("#tags").value.split(",").map(s=>s.trim()).filter(Boolean);
+
+    const err = validate(url,title);
+    if(err){ $("#formError").textContent = err; return; }
+
+    data.unshift({ id: uid(), url, title, summary, tags, created: Date.now(), updated: Date.now() });
+    persist(); resetForm(); render();
+  });
+
+  $("#resetBtn").addEventListener("click", resetForm);
+
+  $("#q").addEventListener("input", render);
+  $("#sort").addEventListener("change", render);
+
+  document.addEventListener("click", (e)=>{
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    const act = btn.dataset.act;
+    const id = btn.dataset.id;
+    if(!act) return;
+
+    if(act==="open"){
+      const row = data.find(x=>x.id===id);
+      if(row) window.open(row.url, "_blank");
+    }
+    if(act==="copy"){
+      const row = data.find(x=>x.id===id);
+      if(row){ navigator.clipboard.writeText(row.url); btn.textContent="Copiato!"; setTimeout(()=>btn.textContent="Copia URL",1000); }
+    }
+    if(act==="edit"){
+      const card = btn.closest(".item");
+      const box = card.querySelector(".editbox");
+      const now = getComputedStyle(box).display === "none";
+      box.style.display = now ? "grid" : "none";
+    }
+    if(act==="cancelEdit"){
+      const card = btn.closest(".item");
+      const box = card.querySelector(".editbox");
+      box.style.display = "none";
+    }
+    if(act==="saveEdit"){
+      const card = btn.closest(".item");
+      const box = card.querySelector(".editbox");
+      const inputs = box.querySelectorAll("[data-field]");
+      const payload = {};
+      inputs.forEach(inp=> payload[inp.dataset.field] = inp.value.trim());
+      const tags = payload["tags"].split(",").map(s=>s.trim()).filter(Boolean);
+      const url = payload["url"]; const title = payload["title"];
+      const err = validate(url,title);
+      if(err){ alert(err); return; }
+      const idx = data.findIndex(x=>x.id===id);
+      if(idx>=0){
+        data[idx] = { ...data[idx], url, title, summary: payload["summary"], tags, updated: Date.now() };
+        persist(); render();
+      }
+    }
+    if(act==="del"){
+      if(confirm("Eliminare questo link?")){
+        data = data.filter(x=>x.id!==id);
+        persist(); render();
+      }
+    }
+  });
+
+  $("#clearAll").addEventListener("click", ()=>{
+    if(confirm("Sicuro di voler svuotare tutto?")){ data=[]; persist(); render(); }
+  });
+
+  $("#exportBtn").addEventListener("click", ()=>{
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "link-organizer-export.json";
+    a.click();
+  });
+
+  $("#importBtn").addEventListener("click", ()=> $("#importFile").click());
+  $("#importFile").addEventListener("change", (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const arr = JSON.parse(reader.result);
+        if(!Array.isArray(arr)) throw new Error("Formato non valido");
+        const incoming = arr.map(x=>({ ...x, id: uid(), created: x.created||Date.now(), updated: Date.now()}));
+        data = [...incoming, ...data];
+        persist(); render();
+      }catch(err){
+        alert("Errore import: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  document.addEventListener("keydown", (e)=>{
+    const cmd = e.ctrlKey || e.metaKey;
+    if(cmd && e.key.toLowerCase()==="k"){ e.preventDefault(); $("#q").focus(); $("#q").select(); }
+    if(cmd && e.key.toLowerCase()==="s"){ e.preventDefault(); $("#saveBtn").click(); }
+    if(cmd && e.key.toLowerCase()==="e"){ e.preventDefault(); $("#exportBtn").click(); }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
