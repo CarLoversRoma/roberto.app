@@ -293,89 +293,6 @@
         padding: 16px
       }
     }
-
-    /* === Tab System === */
-    .tabs {
-      display: flex;
-      gap: var(--space-2);
-      border-bottom: 1px solid var(--border);
-      margin-bottom: var(--space-3);
-    }
-
-    .tab-btn {
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      padding: var(--space-2) var(--space-3);
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--sub);
-      transition: all 0.2s ease;
-    }
-
-    .tab-btn:hover {
-      color: var(--text);
-    }
-
-    .tab-btn.active {
-      border-bottom-color: var(--acc);
-      color: var(--acc);
-    }
-
-    .tab-panel {
-      display: none;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
-    /* === Cloud Services Collapsible === */
-    .cloud-services summary {
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      list-style: none;
-      user-select: none;
-    }
-
-    .cloud-services summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .cloud-services[open] summary {
-      margin-bottom: var(--space-3);
-      padding-bottom: var(--space-3);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .cloud-services summary h3 {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .cloud-services summary:hover {
-      opacity: 0.8;
-    }
-
-    /* === Sync Badge === */
-    #syncBadge {
-      transition: all 0.3s ease;
-    }
-
-    #syncBadge.synced {
-      background: var(--acc);
-      border-color: var(--acc);
-      color: white;
-    }
-
-    #syncBadge.local {
-      background: transparent;
-      border-color: var(--sub);
-      color: var(--sub);
-    }
   </style>
 
   <!-- Favicon (fallback JPG) -->
@@ -386,31 +303,6 @@
   <!-- Google API Client -->
   <script src="https://apis.google.com/js/api.js"></script>
 
-  <!-- Firebase v10 modular SDK -->
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-    // Expose to window for use in non-module scripts
-    window.firebaseModules = {
-      initializeApp,
-      getAuth,
-      signInAnonymously,
-      onAuthStateChanged,
-      getFirestore,
-      collection,
-      addDoc,
-      updateDoc,
-      deleteDoc,
-      doc,
-      onSnapshot,
-      query,
-      where,
-      getDocs
-    };
-  </script>
-
 </head>
 
 <body>
@@ -418,10 +310,8 @@
     <header>
       <div class="brand">
         <div class="logo" aria-hidden="true"></div>
-        <h1>Link Organizer
-          <span id="syncBadge" class="pill local">📡 Locale</span>
-          <span id="linkCount" class="pill" style="font-size:11px">0 link</span>
-        </h1>
+        <h1>Link Organizer <span class="pill">Offline</span> <span id="linkCount" class="pill" style="font-size:11px">0
+            link</span></h1>
       </div>
       <div class="bar">
         <input id="q" type="text" placeholder="Cerca per titolo, summary, tag o dominio…" />
@@ -480,75 +370,41 @@
       <button id="clearAll" class="warn">Svuota tutto</button>
     </section>
 
-    <!-- Cloud Services Section -->
-    <details class="card cloud-services" style="margin-top:var(--space-3)">
-      <summary>
-        <h3>☁️ Cloud Services</h3>
-        <span id="cloudStatus" class="muted">Non configurato</span>
-      </summary>
+    <!-- Google Drive Section -->
+    <section class="card" style="margin-top:var(--space-3)">
+      <h3 style="margin:0 0 var(--space-3) 0;font-size:16px;font-weight:700">☁️ Google Drive Auto-Backup</h3>
 
-      <!-- Tabs -->
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="firebase">🔥 Firebase Sync</button>
-        <button class="tab-btn" data-tab="gdrive">📦 Google Drive Backup</button>
-      </div>
+      <!-- Setup Wizard (First Run) -->
+      <div id="gdriveSetupWizard" style="display:none">
+        <div
+          style="display:grid;gap:var(--space-3);padding:var(--space-3);background:var(--bg);border-radius:var(--radius)">
+          <div style="text-align:center">
+            <div style="font-size:48px;margin-bottom:var(--space-2)">🚀</div>
+            <h4 style="margin:0 0 var(--space-2) 0;font-size:16px">Configura Google Drive Auto-Backup</h4>
+            <p class="muted" style="margin:0">Scegli come vuoi configurare i backup automatici</p>
+          </div>
 
-      <!-- Firebase Panel -->
-      <div id="firebase-panel" class="tab-panel active">
-        <!-- Not Connected -->
-        <div id="firebaseDisconnected">
-          <p class="muted" style="margin:0 0 var(--space-3) 0">
-            Sincronizza i tuoi link in tempo reale tra dispositivi con Firebase Firestore.
-          </p>
           <div style="display:grid;gap:var(--space-2)">
-            <label for="firebaseConfig">Firebase Configuration (JSON)</label>
-            <textarea id="firebaseConfig" placeholder='{"apiKey":"...","authDomain":"...","projectId":"..."}'
-              style="min-height:120px;font-family:monospace;font-size:12px"></textarea>
-            <div class="muted" style="font-size:12px">
-              Get your config from <a href="https://console.firebase.google.com/" target="_blank"
-                style="color:var(--acc)">Firebase Console</a>. See <a href="firebase-setup.md"
-                style="color:var(--acc)">setup guide</a>.
-            </div>
-          </div>
-          <div class="actions" style="margin-top:var(--space-3)">
-            <button id="firebaseConnect" class="primary">🔌 Connetti Firebase</button>
-          </div>
-        </div>
+            <button id="wizardUsePreset" class="primary" style="padding:var(--space-3);text-align:left">
+              <div style="font-weight:700;margin-bottom:4px">🎯 Setup Rapido (Consigliato)</div>
+              <div class="muted" style="font-size:13px;font-weight:400">Usa la configurazione predefinita. Pronto in 1
+                click!</div>
+            </button>
 
-        <!-- Connected -->
-        <div id="firebaseConnected" style="display:none">
-          <div
-            style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
-            <span style="font-size:20px">✓</span>
-            <div style="flex:1">
-              <div style="font-weight:600">Connesso a Firebase</div>
-              <div id="firebaseUserId" class="muted" style="font-size:12px"></div>
-            </div>
+            <button id="wizardUseCustom" class="ghost" style="padding:var(--space-3);text-align:left">
+              <div style="font-weight:700;margin-bottom:4px">⚙️ Configurazione Personalizzata</div>
+              <div class="muted" style="font-size:13px;font-weight:400">Usa il tuo progetto Google Cloud personale</div>
+            </button>
           </div>
-          <div class="actions">
-            <button id="firebaseDisconnect">🔌 Disconnetti</button>
-            <button id="firebaseForceSync" class="ghost">🔄 Sincronizza</button>
-          </div>
+
+          <button id="wizardSkip" class="ghost" style="font-size:13px">Salta (configura più tardi)</button>
         </div>
       </div>
 
-      <!-- Google Drive Panel -->
-      <div id="gdrive-panel" class="tab-panel">
-        <!-- Setup Wizard -->
-        <div id="gdriveSetupWizard" style="display:none">
-          <div
-            style="display:grid;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius)">
-            <p class="muted" style="margin:0;text-align:center">Scegli come configurare Google Drive Backup</p>
-            <button id="wizardUsePreset" class="primary">🎯 Setup Rapido</button>
-            <button id="wizardUseCustom" class="ghost">⚙️ Configurazione Personalizzata</button>
-            <button id="wizardSkip" class="ghost" style="font-size:12px">Salta</button>
-          </div>
-        </div>
-
-        <!-- Simple Mode -->
-        <div id="gdriveSimpleMode" style="display:none">
-          <p class="muted" style="margin:0 0 var(--space-3) 0">
-            Backup automatico dei tuoi link su Google Drive.
+      <!-- Simple Mode (Default) -->
+      <div id="gdriveSimpleMode" style="display:none">
+        <div style="display:grid;gap:var(--space-3)">
+          <p class="muted" style="margin:0">Backup automatico dei tuoi link su Google Drive ogni volta che chiudi l'app.
           </p>
           <div class="actions">
             <button id="gdriveQuickConnect" class="primary">🚀 Connetti Google Drive</button>
@@ -557,35 +413,41 @@
             <button id="gdriveReconfigure" class="ghost" style="font-size:13px">🔧 Cambia Configurazione</button>
           </div>
         </div>
+      </div>
 
-        <!-- Advanced Mode -->
-        <div id="gdriveAdvancedMode" style="display:none">
-          <button id="gdriveShowSimple" class="ghost" style="font-size:12px;margin-bottom:var(--space-2)">← Torna al
-            Setup Rapido</button>
-          <div style="display:grid;gap:var(--space-2)">
+      <!-- Advanced Mode -->
+      <div id="gdriveAdvancedMode" style="display:none">
+        <div style="display:grid;gap:var(--space-3)">
+          <div style="display:flex;align-items:center;gap:var(--space-2)">
+            <button id="gdriveShowSimple" class="ghost" style="font-size:13px">← Torna al Setup Rapido</button>
+          </div>
+          <div>
             <label for="gdriveClientId">
               Google Cloud CLIENT_ID
               <span id="clientIdValidation" style="margin-left:8px;font-size:12px"></span>
             </label>
-            <input id="gdriveClientId" type="text" placeholder="123456789012-xxxxx.apps.googleusercontent.com" />
-            <div class="muted" style="font-size:12px">
-              Get from <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
+            <input id="gdriveClientId" type="text"
+              placeholder="123456789012-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com" />
+            <div class="muted" style="margin-top:4px">
+              Ottieni il tuo CLIENT_ID dalla <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
                 style="color:var(--acc)">Google Cloud Console</a>
             </div>
           </div>
-          <div class="actions" style="margin-top:var(--space-2)">
-            <button id="gdriveConnect" class="primary">🔗 Connetti</button>
+          <div class="actions">
+            <button id="gdriveConnect" class="primary">🔗 Connetti Google Drive</button>
           </div>
         </div>
+      </div>
 
-        <!-- Connected -->
-        <div id="gdriveConnected" style="display:none">
+      <!-- Connected State -->
+      <div id="gdriveConnected" style="display:none">
+        <div style="display:grid;gap:var(--space-3)">
           <div
-            style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
+            style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm)">
             <span style="font-size:20px">✓</span>
             <div style="flex:1">
               <div style="font-weight:600">Connesso a Google Drive</div>
-              <div id="gdriveUserEmail" class="muted" style="font-size:12px"></div>
+              <div id="gdriveUserEmail" class="muted" style="font-size:13px"></div>
             </div>
           </div>
           <div class="actions">
@@ -594,8 +456,7 @@
             <button id="gdriveManualBackup" class="ghost">💾 Backup Manuale</button>
           </div>
         </div>
-      </div>
-    </details>
+    </section>
 
 
     <section id="list" class="list" style="margin-top:var(--space-3)"></section>
@@ -625,31 +486,6 @@
         const current = document.documentElement.getAttribute("data-theme") || "light";
         applyTheme(current === "dark" ? "light" : "dark");
       });
-
-      // =====================================================
-      // TAB SWITCHING LOGIC
-      // =====================================================
-      function initTabSwitching() {
-        const tabBtns = $$('.tab-btn');
-        tabBtns.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const targetTab = btn.dataset.tab;
-
-            // Update active button
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Update active panel
-            $$('.tab-panel').forEach(panel => panel.classList.remove('active'));
-            const targetPanel = $(`#${targetTab}-panel`);
-            if (targetPanel) targetPanel.classList.add('active');
-          });
-        });
-      }
-
-      // Initialize tab switching
-      initTabSwitching();
-
 
       let data = load();
       function load() {
