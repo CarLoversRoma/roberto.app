@@ -1,0 +1,41 @@
+[
+  {
+    "id": "ktemn67hjmmhf01ntl",
+    "url": "https://carloversroma.github.io/consumi_mensili/",
+    "title": "consumi mensili",
+    "summary": "consumi mensili palazzina",
+    "tags": [
+      "consumi",
+      "palazzina"
+    ],
+    "created": 1761923979993,
+    "updated": 1761923979993
+  },
+  {
+    "id": "tvsvg7xlqgmhezfv4d",
+    "url": "https://carloversroma.github.io/calcolo_spese_palazzina/",
+    "title": "Calcolo bollette palazzina",
+    "summary": "calcolo e ripartizione spese palazzina",
+    "tags": [
+      "palazzina",
+      "spese",
+      "calcolo"
+    ],
+    "created": 1761922963021,
+    "updated": 1761922963021
+  },
+  {
+    "id": "bskgb6qpnu7mheyu6yg",
+    "url": "https://carloversroma.github.io/CBRE/",
+    "title": "CBRE",
+    "summary": "",
+    "tags": [
+      "CBRE",
+      "cbre",
+      "facility",
+      "FACILITY"
+    ],
+    "created": 1761921951928,
+    "updated": 1761921951928
+  }
+]
