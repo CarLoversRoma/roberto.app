@@ -1491,10 +1491,14 @@
 
         // OAuth2 authentication
         async function authenticate(usePreset = false) {
-          // If user selected custom mode in wizard, but passed usePreset=false, we check input
-          if (!usePreset && window.Wizard.state.gdrive.mode === 'custom') {
-            const cid = $("#gdriveClientId").value.trim();
+          // Explicitly save the custom client ID if not using preset
+          if (!usePreset) {
+            const cid = $("#gdriveClientId") ? $("#gdriveClientId").value.trim() : null;
             if (cid) saveClientId(cid, false);
+            else {
+              // Ensure we are in custom mode even if no input (re-auth scenario)
+              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "false");
+            }
           }
 
           const clientId = usePreset ? GDRIVE_DEFAULT_CLIENT_ID : getClientId();
