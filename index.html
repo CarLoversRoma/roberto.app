@@ -1358,12 +1358,10 @@
       const GoogleDriveBackup = (() => {
         // Default CLIENT_ID generato da Google Identity Services
         // Questo è un CLIENT_ID pubblico sicuro da usare per app client-side
-        const GDRIVE_DEFAULT_CLIENT_ID = "1068770927838-ck7829qm3vj7m8uepn13hbqvpl7pr8sq.apps.googleusercontent.com";
-
         const GDRIVE_CLIENT_ID_KEY = "gdrive_client_id";
         const GDRIVE_TOKEN_KEY = "gdrive_access_token";
         const GDRIVE_EMAIL_KEY = "gdrive_user_email";
-        const GDRIVE_USE_PRESET_KEY = "gdrive_use_preset";
+        // REMOVED: GDRIVE_USE_PRESET_KEY
         const GDRIVE_SETUP_COMPLETE_KEY = "gdrive_setup_complete";
         const MAX_BACKUPS = 10;
         const BACKUP_PREFIX = "link-organizer-backup-";
@@ -1410,22 +1408,14 @@
 
         // Get stored CLIENT_ID
         function getClientId() {
-          const usePreset = localStorage.getItem(GDRIVE_USE_PRESET_KEY) === "true";
-          if (usePreset) return GDRIVE_DEFAULT_CLIENT_ID;
-          return localStorage.getItem(GDRIVE_CLIENT_ID_KEY) || $("#gdriveClientId").value.trim();
+          return localStorage.getItem(GDRIVE_CLIENT_ID_KEY) || ($("#gdriveClientId") ? $("#gdriveClientId").value.trim() : "");
         }
 
         // Save CLIENT_ID
-        function saveClientId(clientId, usePreset = false) {
-          if (usePreset) {
-            localStorage.setItem(GDRIVE_USE_PRESET_KEY, "true");
-            localStorage.setItem(GDRIVE_CLIENT_ID_KEY, GDRIVE_DEFAULT_CLIENT_ID);
-          } else {
-            localStorage.setItem(GDRIVE_USE_PRESET_KEY, "false");
-            localStorage.setItem(GDRIVE_CLIENT_ID_KEY, clientId);
-            if ($("#gdriveClientId")) {
-              $("#gdriveClientId").value = clientId;
-            }
+        function saveClientId(clientId) {
+          localStorage.setItem(GDRIVE_CLIENT_ID_KEY, clientId);
+          if ($("#gdriveClientId")) {
+            $("#gdriveClientId").value = clientId;
           }
           markSetupComplete();
         }
@@ -1490,21 +1480,23 @@
         }
 
         // OAuth2 authentication
-        async function authenticate(usePreset = false) {
-          // Explicitly save the custom client ID if not using preset
-          if (!usePreset) {
-            const cid = $("#gdriveClientId") ? $("#gdriveClientId").value.trim() : null;
-            if (cid) saveClientId(cid, false);
-            else {
-              // Ensure we are in custom mode even if no input (re-auth scenario)
-              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "false");
-            }
+        async function authenticate() {
+          // Always use custom client ID
+          const cid = $("#gdriveClientId") ? $("#gdriveClientId").value.trim() : null;
+          if (cid) saveClientId(cid);
+
+          const clientId = getClientId();
+
+          // DEBUG: Verify Client ID
+          console.log("Authenticating with Client ID:", clientId);
+          if (clientId.includes("1068770927838")) {
+            alert("⚠️ ATTENZIONE: Stai usando ancora il vecchio ID demo disattivo. Inserisci il TUO ID.");
+            localStorage.removeItem(GDRIVE_CLIENT_ID_KEY);
+            return false;
           }
 
-          const clientId = usePreset ? GDRIVE_DEFAULT_CLIENT_ID : getClientId();
-
-          // Validate CLIENT_ID format (skip for preset/default)
-          if (!usePreset && !validateClientId(clientId)) {
+          // Validate CLIENT_ID format
+          if (!validateClientId(clientId)) {
             showErrorDialog(
               "❌ CLIENT_ID non valido",
               "Il formato del CLIENT_ID non è corretto.",
@@ -1520,7 +1512,7 @@
             return false;
           }
 
-          saveClientId(clientId, usePreset);
+          saveClientId(clientId);
           await initGoogleAPI();
 
           return new Promise((resolve) => {
@@ -1837,51 +1829,50 @@
           const connectBtn = $("#gdriveConnect");
           if (connectBtn) {
             connectBtn.addEventListener("click", () => {
-              authenticate(false); // Enable forced custom mode
+              authenticate();
             });
+
+            // Disconnect button
+            const disconnectBtn = $("#gdriveDisconnect");
+            if (disconnectBtn) {
+              disconnectBtn.addEventListener("click", disconnect);
+            }
+
+            // Restore backup button
+            const restoreBtn = $("#gdriveRestore");
+            if (restoreBtn) {
+              restoreBtn.addEventListener("click", restoreBackup);
+            }
+
+            // Manual backup button
+            const manualBackupBtn = $("#gdriveManualBackup");
+            if (manualBackupBtn) {
+              manualBackupBtn.addEventListener("click", manualBackup);
+            }
+
+            // CLIENT_ID validation on input
+            const clientIdInput = $("#gdriveClientId");
+            if (clientIdInput) {
+              clientIdInput.addEventListener("input", (e) => {
+                updateClientIdValidation(e.target.value);
+              });
+            }
           }
 
-          // Disconnect button
-          const disconnectBtn = $("#gdriveDisconnect");
-          if (disconnectBtn) {
-            disconnectBtn.addEventListener("click", disconnect);
-          }
+          return {
+            init,
+            isConnected,
+            uploadBackup,
+            listBackups,
+            restoreBackup
+          };
+        }) ();
 
-          // Restore backup button
-          const restoreBtn = $("#gdriveRestore");
-          if (restoreBtn) {
-            restoreBtn.addEventListener("click", restoreBackup);
-          }
+        // Initialize Google Drive Backup
+        GoogleDriveBackup.init();
 
-          // Manual backup button
-          const manualBackupBtn = $("#gdriveManualBackup");
-          if (manualBackupBtn) {
-            manualBackupBtn.addEventListener("click", manualBackup);
-          }
-
-          // CLIENT_ID validation on input
-          const clientIdInput = $("#gdriveClientId");
-          if (clientIdInput) {
-            clientIdInput.addEventListener("input", (e) => {
-              updateClientIdValidation(e.target.value);
-            });
-          }
-        }
-
-        return {
-          init,
-          isConnected,
-          uploadBackup,
-          listBackups,
-          restoreBackup
-        };
+        render();
       })();
-
-      // Initialize Google Drive Backup
-      GoogleDriveBackup.init();
-
-      render();
-    })();
   </script>
 </body>
 
