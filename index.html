@@ -1858,21 +1858,22 @@
               });
             }
           }
+        }
 
-          return {
-            init,
-            isConnected,
-            uploadBackup,
-            listBackups,
-            restoreBackup
-          };
-        }) ();
-
-        // Initialize Google Drive Backup
-        GoogleDriveBackup.init();
-
-        render();
+        return {
+          init,
+          isConnected,
+          uploadBackup,
+          listBackups,
+          restoreBackup
+        };
       })();
+
+      // Initialize Google Drive Backup
+      GoogleDriveBackup.init();
+
+      render();
+    })();
   </script>
 </body>
 
