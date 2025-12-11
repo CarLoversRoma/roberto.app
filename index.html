@@ -674,9 +674,15 @@
                   <li>Crea un progetto e clicca "Crea Credenziali" → "ID client OAuth".</li>
                   <li>Scegli "Applicazione Web".</li>
                   <li>In <strong>Origini JavaScript autorizzate</strong> aggiungi:
-                    <br><code
-                      style="background:var(--bg);padding:2px 4px;border-radius:4px">http://localhost:8000</code>
+                    <ul style="margin:4px 0 4px 16px;padding:0;list-style-type:disc">
+                      <li><code
+                          style="background:var(--bg);padding:2px 4px;border-radius:4px">http://localhost:8000</code>
+                      </li>
+                      <li><code style="background:var(--bg);padding:2px 4px;border-radius:4px"
+                          id="currentOriginCode"></code> (URL Attuale)</li>
+                    </ul>
                   </li>
+                  <script>document.getElementById("currentOriginCode").textContent = window.location.origin;</script>
                   <li>Copia il <strong>Client ID</strong> qui sotto.</li>
                 </ol>
               </div>
@@ -803,13 +809,41 @@
 
         validateAndNext(service) {
           if (service === 'firebase') {
-            const configStr = $("#firebaseConfig").value.trim();
+            let configStr = $("#firebaseConfig").value.trim();
+            // Try to clean up JS object syntax if pasted directly from console
+            // Remove "const firebaseConfig =" part and trailing semicolon
+            configStr = configStr.replace(/^(const|var|let)\s+\w+\s*=\s*/, "").replace(/;$/, "");
+
+            // Remove comments
+            configStr = configStr.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+
             try {
-              const cfg = JSON.parse(configStr);
-              if (!cfg.apiKey || !cfg.projectId) throw new Error("Mancano campi obbligatori");
+              let cfg;
+              try {
+                // Try strict JSON parse first
+                cfg = JSON.parse(configStr);
+              } catch (jsonErr) {
+                // Fallback: Try to eval as JS object (for unquoted keys)
+                // Security warning: This evaluates user input, but it is client-side only 
+                // and the user is pasting their own config.
+                try {
+                  cfg = new Function("return " + configStr)();
+                } catch (evalErr) {
+                  throw new Error("Formato non riconosciuto. Assicurati di copiare l'oggetto {...}");
+                }
+              }
+
+              if (!cfg || !cfg.apiKey || !cfg.projectId) {
+                throw new Error("Mancano campi obbligatori (apiKey, projectId, etc)");
+              }
+
+              // If we are here, config is valid. 
+              // We might want to update the textarea to valid JSON for clarity, but optional.
+              // $("#firebaseConfig").value = JSON.stringify(cfg, null, 2);
+
               this.next(service);
             } catch (e) {
-              alert("JSON non valido: " + e.message);
+              alert("Configurazione non valida: " + e.message + "\n\nSuggerimento: Copia l'intero oggetto 'const firebaseConfig = { ... }' dalla console di Firebase.");
             }
           }
           if (service === 'gdrive') {
