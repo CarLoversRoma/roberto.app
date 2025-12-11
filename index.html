@@ -602,7 +602,7 @@
     <p class="footer">Tutto resta in locale (localStorage). Nessuna dipendenza esterna. Pronto per GitHub Pages.</p>
   </div>
 
-  <script>
+  <script type="module">
     (function () {
       const $ = (s) => document.querySelector(s);
       const $$ = (s) => Array.from(document.querySelectorAll(s));
@@ -748,6 +748,51 @@
         return "";
       }
 
+      const Actions = {
+        async add(item) {
+          if (FirebaseSync.isConnected) {
+            try { await FirebaseSync.create(item); }
+            catch (e) { alert("Errore salvataggio cloud: " + e.message); return; }
+          } else {
+            data.unshift(item);
+            persist(); render();
+          }
+        },
+        async update(id, updates) {
+          const idx = data.findIndex(x => x.id === id);
+          if (idx === -1) return;
+          const newItem = { ...data[idx], ...updates, updated: Date.now() };
+
+          if (FirebaseSync.isConnected) {
+            try { await FirebaseSync.update(newItem); }
+            catch (e) { alert("Errore aggiornamento cloud: " + e.message); }
+          } else {
+            data[idx] = newItem;
+            persist(); render();
+          }
+        },
+        async delete(id) {
+          if (FirebaseSync.isConnected) {
+            if (!confirm("Eliminare da Firebase?")) return;
+            try { await FirebaseSync.remove(id); }
+            catch (e) { alert("Errore eliminazione cloud: " + e.message); }
+          } else {
+            if (!confirm("Eliminare questo link?")) return;
+            data = data.filter(x => x.id !== id);
+            persist(); render();
+          }
+        },
+        async clearAll() {
+          if (confirm("Sicuro di voler svuotare tutto?")) {
+            if (FirebaseSync.isConnected) {
+              alert("Cancellazione massiva non supportata su Cloud per sicurezza. Disconnettiti per cancellare locale.");
+            } else {
+              data = []; persist(); render();
+            }
+          }
+        }
+      };
+
       $("#saveBtn").addEventListener("click", () => {
         const url = $("#url").value.trim();
         const title = $("#title").value.trim();
@@ -757,8 +802,9 @@
         const err = validate(url, title);
         if (err) { $("#formError").textContent = err; return; }
 
-        data.unshift({ id: uid(), url, title, summary, tags, created: Date.now(), updated: Date.now() });
-        persist(); resetForm(); render();
+        const item = { id: uid(), url, title, summary, tags, created: Date.now(), updated: Date.now() };
+        Actions.add(item);
+        resetForm();
       });
 
       $("#resetBtn").addEventListener("click", resetForm);
@@ -804,21 +850,15 @@
           if (err) { alert(err); return; }
           const idx = data.findIndex(x => x.id === id);
           if (idx >= 0) {
-            data[idx] = { ...data[idx], url, title, summary: payload["summary"], tags, updated: Date.now() };
-            persist(); render();
+            Actions.update(id, { url, title, summary: payload["summary"], tags });
           }
         }
         if (act === "del") {
-          if (confirm("Eliminare questo link?")) {
-            data = data.filter(x => x.id !== id);
-            persist(); render();
-          }
+          Actions.delete(id);
         }
       });
 
-      $("#clearAll").addEventListener("click", () => {
-        if (confirm("Sicuro di voler svuotare tutto?")) { data = []; persist(); render(); }
-      });
+      $("#clearAll").addEventListener("click", () => Actions.clearAll());
 
       $("#exportBtn").addEventListener("click", () => {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -852,6 +892,187 @@
         if (cmd && e.key.toLowerCase() === "s") { e.preventDefault(); $("#saveBtn").click(); }
         if (cmd && e.key.toLowerCase() === "e") { e.preventDefault(); $("#exportBtn").click(); }
       });
+
+      // =====================================================
+      // FIREBASE LIVE SYNC MODULE
+      // =====================================================
+      const FirebaseSync = (() => {
+        const STORAGE_KEY_CONFIG = "firebase_config";
+        const COLLECTION_NAME = "links_v1";
+
+        // Modules from window
+        const {
+          initializeApp, getAuth, signInAnonymously, onAuthStateChanged,
+          getFirestore, collection, addDoc, updateDoc, deleteDoc, doc,
+          onSnapshot, query, where, getDocs
+        } = window.firebaseModules;
+
+        let app, auth, db, unsubscribe;
+        let isConnected = false;
+        let currentUser = null;
+
+        function init() {
+          const savedConfig = localStorage.getItem(STORAGE_KEY_CONFIG);
+          if (savedConfig) {
+            $("#firebaseConfig").value = savedConfig;
+            // Optional: Auto-connect? Let's wait for user action or explicit "auto-connect" flag
+            // For now, restoring config in UI is enough.
+          }
+
+          $("#firebaseConnect").addEventListener("click", () => {
+            const configStr = $("#firebaseConfig").value.trim();
+            try {
+              const config = JSON.parse(configStr);
+              connect(config);
+            } catch (e) {
+              alert("Configurazione JSON non valida!");
+            }
+          });
+
+          $("#firebaseDisconnect").addEventListener("click", disconnect);
+
+          $("#firebaseForceSync").addEventListener("click", async () => {
+            if (!isConnected) return;
+            if (confirm("Vuoi caricare tutti i link locali su Firebase? (I duplicati verranno gestiti per ID)")) {
+              await uploadLocalData();
+              alert("Upload completato.");
+            }
+          });
+        }
+
+        async function connect(config) {
+          try {
+            app = initializeApp(config);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            // Auth listener
+            onAuthStateChanged(auth, (user) => {
+              currentUser = user;
+              if (user) {
+                console.log("Firebase user:", user.uid);
+                $("#firebaseUserId").textContent = "ID: " + user.uid.slice(0, 6) + "...";
+                startSync();
+              } else {
+                stopSync();
+              }
+            });
+
+            await signInAnonymously(auth);
+
+            // Save config if successful
+            localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
+
+            isConnected = true;
+            updateUI(true);
+
+          } catch (e) {
+            console.error("Firebase connection error:", e);
+            alert("Errore connessione Firebase: " + e.message);
+            updateUI(false);
+          }
+        }
+
+        function disconnect() {
+          if (auth) auth.signOut();
+          isConnected = false;
+          updateUI(false);
+          // Reload from local storage to ensure clean state
+          data = load();
+          render();
+        }
+
+        function updateUI(connected) {
+          $("#firebaseDisconnected").style.display = connected ? "none" : "block";
+          $("#firebaseConnected").style.display = connected ? "block" : "none";
+          $("#syncBadge").className = connected ? "pill synced" : "pill local";
+          $("#syncBadge").textContent = connected ? "🔥 Live Sync" : "📡 Locale";
+
+          // Switch tab status
+          const fbTab = document.querySelector('.tab-btn[data-tab="firebase"]');
+          if (fbTab) fbTab.textContent = connected ? "🔥 Firebase Connesso" : "🔥 Firebase Sync";
+        }
+
+        function startSync() {
+          if (unsubscribe) unsubscribe();
+
+          const q = query(collection(db, COLLECTION_NAME));
+          unsubscribe = onSnapshot(q, (snapshot) => {
+            const remoteData = [];
+            snapshot.forEach((doc) => {
+              remoteData.push({ ...doc.data(), id: doc.id });
+            });
+
+            // Merge strategy: Remote wins. 
+            // We map Firestore ID (doc.id) to our ID. 
+            // But wait, our ID is random string. Firestore ID is auto-generated?
+            // Better to use our ID as Firestore Document ID.
+
+            // DATA MAPPING
+            data = remoteData.map(d => ({
+              id: d.id, // Firestore DOC ID = Item ID
+              url: d.url,
+              title: d.title,
+              summary: d.summary,
+              tags: d.tags || [],
+              created: d.created,
+              updated: d.updated
+            }));
+
+            // Update local storage as cache
+            persist();
+            render();
+          }, (error) => {
+            console.error("Sync error:", error);
+            // alert("Errore sync: " + error.message);
+          });
+        }
+
+        function stopSync() {
+          if (unsubscribe) unsubscribe();
+          unsubscribe = null;
+        }
+
+        async function create(item) {
+          // Use item.id as doc ID
+          await updateDoc(doc(db, COLLECTION_NAME, item.id), item).catch(async (e) => {
+            // If doc doesn't exist, setDoc (or use setDoc directly)
+            // Firestore standard: setDoc(doc(db, col, id), data)
+            const { setDoc, doc } = window.firebaseModules; // Re-import if needed safely
+            await window.firebaseModules.setDoc(doc(db, COLLECTION_NAME, item.id), item);
+          });
+        }
+
+        // Helper to use setDoc which handles both create and overwrite
+        async function setItem(item) {
+          const { setDoc, doc } = window.firebaseModules;
+          await setDoc(doc(db, COLLECTION_NAME, item.id), item);
+        }
+
+        async function remove(id) {
+          const { deleteDoc, doc } = window.firebaseModules;
+          await deleteDoc(doc(db, COLLECTION_NAME, id));
+        }
+
+        async function uploadLocalData() {
+          for (const item of data) {
+            await setItem(item);
+          }
+        }
+
+        return {
+          init,
+          connect,
+          disconnect,
+          get isConnected() { return isConnected; },
+          create: setItem, // In our case create and update are same (upsert with ID)
+          update: setItem,
+          remove
+        };
+      })();
+
+      // Initialize Firebase Module
+      FirebaseSync.init();
 
       // =====================================================
       // GOOGLE DRIVE AUTO-BACKUP MODULE
