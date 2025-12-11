@@ -658,46 +658,40 @@
 
         <!-- Wizard State -->
         <div id="gdriveDisconnected" class="wizard-container">
-          <!-- Step 1: Mode Selection -->
+          <!-- Step 1: Config (Was Step 2) -->
           <div class="wizard-step active" data-step="1">
             <div class="wizard-header">
               <h3>📦 Google Drive Backup</h3>
-              <p class="muted">Salva automaticamente i tuoi dati sul tuo Drive personale.</p>
-            </div>
-            <div style="display:grid;gap:var(--space-3)">
-              <button class="card" style="text-align:left;cursor:pointer;border:2px solid transparent"
-                onclick="window.Wizard.selectDriveMode('preset')">
-                <div style="font-weight:600">🚀 Setup Rapido</div>
-                <div class="muted" style="font-size:12px">Usa la configurazione standard. Ideale per iniziare subito.
-                </div>
-              </button>
-              <button class="card" style="text-align:left;cursor:pointer;border:2px solid transparent"
-                onclick="window.Wizard.selectDriveMode('custom')">
-                <div style="font-weight:600">⚙️ Setup Avanzato</div>
-                <div class="muted" style="font-size:12px">Usa il tuo Google Cloud Client ID. Per utenti esperti.</div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Step 2: Custom Config (Conditional) -->
-          <div class="wizard-step" data-step="2">
-            <div class="wizard-header">
-              <h3>⚙️ Configurazione Avanzata</h3>
-              <p class="muted">Inserisci il tuo Client ID OAuth 2.0</p>
+              <p class="muted">Configura il backup automatico sul tuo Drive.</p>
             </div>
             <div style="display:grid;gap:var(--space-2)">
-              <label for="gdriveClientId">Google Cloud CLIENT_ID</label>
+              <div
+                style="background:var(--btn);padding:var(--space-2);border-radius:var(--radius-sm);font-size:13px;line-height:1.5">
+                <strong>Come ottenere il Client ID (Gratis):</strong>
+                <ol style="margin:8px 0 8px 20px;padding:0">
+                  <li>Vai su <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
+                      style="color:var(--acc)">Google Cloud Console</a>.</li>
+                  <li>Crea un progetto e clicca "Crea Credenziali" → "ID client OAuth".</li>
+                  <li>Scegli "Applicazione Web".</li>
+                  <li>In <strong>Origini JavaScript autorizzate</strong> aggiungi:
+                    <br><code
+                      style="background:var(--bg);padding:2px 4px;border-radius:4px">http://localhost:8000</code>
+                  </li>
+                  <li>Copia il <strong>Client ID</strong> qui sotto.</li>
+                </ol>
+              </div>
+              <label for="gdriveClientId" style="margin-top:var(--space-2)">Google Cloud CLIENT_ID</label>
               <input id="gdriveClientId" type="text" placeholder="123456789012-xxxxx.apps.googleusercontent.com" />
               <div id="clientIdFeedback" class="muted" style="font-size:12px"></div>
             </div>
             <div class="wizard-actions">
-              <button class="ghost" onclick="window.Wizard.prev('gdrive')">← Indietro</button>
+              <span></span>
               <button class="primary" onclick="window.Wizard.validateAndNext('gdrive')">Verifica e Continua →</button>
             </div>
           </div>
 
-          <!-- Step 3: Auth -->
-          <div class="wizard-step" data-step="3">
+          <!-- Step 2: Auth (Was Step 3) -->
+          <div class="wizard-step" data-step="2">
             <div class="wizard-header">
               <h3>🔐 Autorizzazione</h3>
               <p class="muted">Autorizza l'applicazione ad accedere a Drive.</p>
@@ -706,8 +700,7 @@
               <p>Si aprirà un popup di Google per il login.</p>
             </div>
             <div class="wizard-actions">
-              <button class="ghost" id="gdriveBackToStep1" onclick="window.Wizard.goTo('gdrive', 1)">← Cambia
-                Modalità</button>
+              <button class="ghost" onclick="window.Wizard.prev('gdrive')">← Indietro</button>
               <button id="gdriveConnect" class="primary">Autorizza con Google 🔗</button>
             </div>
           </div>
@@ -715,7 +708,6 @@
           <!-- Dots -->
           <div class="wizard-steps" id="gdrive-dots">
             <div class="step-dot active"></div>
-            <div class="step-dot"></div>
             <div class="step-dot"></div>
           </div>
         </div>
@@ -774,7 +766,7 @@
       window.Wizard = {
         state: {
           firebase: { step: 1, total: 3 },
-          gdrive: { step: 1, mode: 'preset', total: 3 }
+          gdrive: { step: 1, total: 2 }
         },
 
         goTo(service, step) {
@@ -804,6 +796,8 @@
         },
 
         prev(service) {
+          // For GDrive, prevent going back from step 1
+          if (service === 'gdrive' && this.state.gdrive.step === 1) return;
           this.goTo(service, this.state[service].step - 1);
         },
 
@@ -819,26 +813,14 @@
             }
           }
           if (service === 'gdrive') {
-            if (this.state.gdrive.mode === 'custom') {
-              const cid = $("#gdriveClientId").value.trim();
-              if (!cid) { alert("Inserisci un Client ID"); return; }
-              // Basic regex check
-              if (!/^\d{12,}-[a-zA-Z0-9_-]{10,}\.apps\.googleusercontent\.com$/.test(cid)) {
-                alert("Formato Client ID non valido"); return;
-              }
+            // Always custom mode now
+            const cid = $("#gdriveClientId").value.trim();
+            if (!cid) { alert("Inserisci un Client ID"); return; }
+            // Basic regex check
+            if (!/^\d{12,}-[a-zA-Z0-9_-]{10,}\.apps\.googleusercontent\.com$/.test(cid)) {
+              alert("Formato Client ID non valido"); return;
             }
             this.next(service);
-          }
-        },
-
-        selectDriveMode(mode) {
-          this.state.gdrive.mode = mode;
-          // If preset, skip step 2 (config) and go directly to 3 (auth)
-          if (mode === 'preset') {
-            // Adjust Step 3 UI slightly if needed
-            this.goTo('gdrive', 3);
-          } else {
-            this.goTo('gdrive', 2);
           }
         }
       };
@@ -1851,8 +1833,7 @@
           const connectBtn = $("#gdriveConnect");
           if (connectBtn) {
             connectBtn.addEventListener("click", () => {
-              const mode = window.Wizard.state.gdrive.mode;
-              authenticate(mode === 'preset');
+              authenticate(false); // Enable forced custom mode
             });
           }
 
