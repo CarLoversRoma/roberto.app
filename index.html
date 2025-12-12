@@ -293,6 +293,156 @@
         padding: 16px
       }
     }
+
+    /* === Tab System === */
+    .tabs {
+      display: flex;
+      gap: var(--space-2);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: var(--space-3);
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: var(--space-2) var(--space-3);
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--sub);
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      border-bottom-color: var(--acc);
+      color: var(--acc);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* === Cloud Services Collapsible === */
+    .cloud-services summary {
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      list-style: none;
+      user-select: none;
+    }
+
+    .cloud-services summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .cloud-services[open] summary {
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cloud-services summary h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .cloud-services summary:hover {
+      opacity: 0.8;
+    }
+
+    /* === Sync Badge === */
+    #syncBadge {
+      transition: all 0.3s ease;
+    }
+
+    #syncBadge.synced {
+      background: var(--acc);
+      border-color: var(--acc);
+      color: white;
+    }
+
+    #syncBadge.local {
+      background: transparent;
+      border-color: var(--sub);
+      color: var(--sub);
+    }
+
+    /* === Wizard UI === */
+    .wizard-container {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: var(--space-4);
+      border: 1px solid var(--border);
+    }
+
+    .wizard-header {
+      margin-bottom: var(--space-4);
+      text-align: center;
+    }
+
+    .wizard-steps {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: var(--space-4);
+    }
+
+    .step-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .step-dot.active {
+      background: var(--acc);
+      transform: scale(1.2);
+    }
+
+    .step-dot.completed {
+      background: var(--acc);
+      opacity: 0.5;
+    }
+
+    .wizard-step {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .wizard-step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .wizard-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--border);
+    }
   </style>
 
   <!-- Favicon (fallback JPG) -->
@@ -303,6 +453,8 @@
   <!-- Google API Client -->
   <script src="https://apis.google.com/js/api.js"></script>
 
+
+
 </head>
 
 <body>
@@ -310,8 +462,10 @@
     <header>
       <div class="brand">
         <div class="logo" aria-hidden="true"></div>
-        <h1>Link Organizer <span class="pill">Offline</span> <span id="linkCount" class="pill" style="font-size:11px">0
-            link</span></h1>
+        <h1>Link Organizer
+          <span id="syncBadge" class="pill local">📡 Locale</span>
+          <span id="linkCount" class="pill" style="font-size:11px">0 link</span>
+        </h1>
       </div>
       <div class="bar">
         <input id="q" type="text" placeholder="Cerca per titolo, summary, tag o dominio…" />
@@ -370,84 +524,31 @@
       <button id="clearAll" class="warn">Svuota tutto</button>
     </section>
 
-    <!-- Google Drive Section -->
-    <section class="card" style="margin-top:var(--space-3)">
-      <h3 style="margin:0 0 var(--space-3) 0;font-size:16px;font-weight:700">☁️ Google Drive Auto-Backup</h3>
+    <!-- Cloud Services Section -->
+    <details class="card cloud-services" style="margin-top:var(--space-3)">
+      <summary>
+        <h3>☁️ Cloud Services</h3>
+        <span id="cloudStatus" class="muted">Non configurato</span>
+      </summary>
 
-      <!-- Setup Wizard (First Run) -->
-      <div id="gdriveSetupWizard" style="display:none">
-        <div
-          style="display:grid;gap:var(--space-3);padding:var(--space-3);background:var(--bg);border-radius:var(--radius)">
-          <div style="text-align:center">
-            <div style="font-size:48px;margin-bottom:var(--space-2)">🚀</div>
-            <h4 style="margin:0 0 var(--space-2) 0;font-size:16px">Configura Google Drive Auto-Backup</h4>
-            <p class="muted" style="margin:0">Scegli come vuoi configurare i backup automatici</p>
-          </div>
-
-          <div style="display:grid;gap:var(--space-2)">
-            <button id="wizardUsePreset" class="primary" style="padding:var(--space-3);text-align:left">
-              <div style="font-weight:700;margin-bottom:4px">🎯 Setup Rapido (Consigliato)</div>
-              <div class="muted" style="font-size:13px;font-weight:400">Usa la configurazione predefinita. Pronto in 1
-                click!</div>
-            </button>
-
-            <button id="wizardUseCustom" class="ghost" style="padding:var(--space-3);text-align:left">
-              <div style="font-weight:700;margin-bottom:4px">⚙️ Configurazione Personalizzata</div>
-              <div class="muted" style="font-size:13px;font-weight:400">Usa il tuo progetto Google Cloud personale</div>
-            </button>
-          </div>
-
-          <button id="wizardSkip" class="ghost" style="font-size:13px">Salta (configura più tardi)</button>
-        </div>
+      <!-- Tabs -->
+      <div class="tabs" style="display:none">
+        <!-- Tabs removed -->
       </div>
 
-      <!-- Simple Mode (Default) -->
-      <div id="gdriveSimpleMode" style="display:none">
-        <div style="display:grid;gap:var(--space-3)">
-          <p class="muted" style="margin:0">Backup automatico dei tuoi link su Google Drive ogni volta che chiudi l'app.
-          </p>
-          <div class="actions">
-            <button id="gdriveQuickConnect" class="primary">🚀 Connetti Google Drive</button>
-            <button id="gdriveShowAdvanced" class="ghost" style="font-size:13px">⚙️ Usa CLIENT_ID
-              Personalizzato</button>
-            <button id="gdriveReconfigure" class="ghost" style="font-size:13px">🔧 Cambia Configurazione</button>
-          </div>
-        </div>
-      </div>
 
-      <!-- Advanced Mode -->
-      <div id="gdriveAdvancedMode" style="display:none">
-        <div style="display:grid;gap:var(--space-3)">
-          <div style="display:flex;align-items:center;gap:var(--space-2)">
-            <button id="gdriveShowSimple" class="ghost" style="font-size:13px">← Torna al Setup Rapido</button>
-          </div>
-          <div>
-            <label for="gdriveClientId">
-              Google Cloud CLIENT_ID
-              <span id="clientIdValidation" style="margin-left:8px;font-size:12px"></span>
-            </label>
-            <input id="gdriveClientId" type="text"
-              placeholder="123456789012-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com" />
-            <div class="muted" style="margin-top:4px">
-              Ottieni il tuo CLIENT_ID dalla <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
-                style="color:var(--acc)">Google Cloud Console</a>
-            </div>
-          </div>
-          <div class="actions">
-            <button id="gdriveConnect" class="primary">🔗 Connetti Google Drive</button>
-          </div>
-        </div>
-      </div>
 
-      <!-- Connected State -->
-      <div id="gdriveConnected" style="display:none">
-        <div style="display:grid;gap:var(--space-3)">
+      <!-- Google Drive Panel -->
+      <!-- Google Drive Panel -->
+      <div id="gdrive-panel" class="tab-panel active" style="display:block">
+        <!-- Connected State -->
+        <div id="gdriveConnected" style="display:none">
           <div
-            style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm)">
+            style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
             <span style="font-size:20px">✓</span>
             <div style="flex:1">
               <div style="font-weight:600">Connesso a Google Drive</div>
-              <div id="gdriveUserEmail" class="muted" style="font-size:13px"></div>
+              <div id="gdriveUserEmail" class="muted" style="font-size:12px"></div>
             </div>
           </div>
           <div class="actions">
@@ -456,14 +557,94 @@
             <button id="gdriveManualBackup" class="ghost">💾 Backup Manuale</button>
           </div>
         </div>
-    </section>
+
+        <!-- Wizard State -->
+        <div id="gdriveDisconnected" class="wizard-container">
+          <!-- Step 1: Config (Was Step 2) -->
+          <div class="wizard-step active" data-step="1">
+            <div class="wizard-header">
+              <h3>📦 Google Drive Backup</h3>
+              <p class="muted">Configura il backup automatico sul tuo Drive.</p>
+            </div>
+            <div style="display:grid;gap:var(--space-2)">
+              <div
+                style="background:var(--btn);padding:var(--space-2);border-radius:var(--radius-sm);font-size:13px;line-height:1.5">
+                <strong>Come ottenere il Client ID (Gratis):</strong>
+                <ol style="margin:8px 0 8px 20px;padding:0">
+                  <li>Vai su <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
+                      style="color:var(--acc)">Google Cloud Console</a>.</li>
+                  <li>Crea un progetto e clicca "Crea Credenziali" → "ID client OAuth".</li>
+                  <li>Scegli "Applicazione Web".</li>
+                  <li>In <strong>Origini JavaScript autorizzate</strong> aggiungi:
+                    <ul style="margin:4px 0 4px 16px;padding:0;list-style-type:disc">
+                      <li><code
+                          style="background:var(--bg);padding:2px 4px;border-radius:4px">http://localhost:8000</code>
+                      </li>
+                      <li><code style="background:var(--bg);padding:2px 4px;border-radius:4px"
+                          id="currentOriginCode"></code> (URL Attuale)</li>
+                    </ul>
+                  </li>
+                  <script>document.getElementById("currentOriginCode").textContent = window.location.origin;</script>
+                  <li>Copia il <strong>Client ID</strong> qui sotto.</li>
+                </ol>
+              </div>
+              <label for="gdriveClientId" style="margin-top:var(--space-2)">Google Cloud CLIENT_ID</label>
+              <input id="gdriveClientId" type="text" placeholder="123456789012-xxxxx.apps.googleusercontent.com" />
+              <div id="clientIdFeedback" class="muted" style="font-size:12px"></div>
+            </div>
+            <div class="wizard-actions">
+              <span></span>
+              <button class="primary" onclick="window.Wizard.validateAndNext('gdrive')">Verifica e Continua →</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Auth (Was Step 3) -->
+          <div class="wizard-step" data-step="2">
+            <div class="wizard-header">
+              <h3>🔐 Autorizzazione</h3>
+              <p class="muted">Autorizza l'applicazione ad accedere a Drive.</p>
+            </div>
+            <div style="text-align:center;margin:2em 0">
+              <p>Si aprirà un popup di Google per il login.</p>
+            </div>
+            <div class="wizard-actions">
+              <button class="ghost" onclick="window.Wizard.prev('gdrive')">← Indietro</button>
+              <button id="gdriveConnect" class="primary">Autorizza con Google 🔗</button>
+            </div>
+          </div>
+
+          <!-- Dots -->
+          <div class="wizard-steps" id="gdrive-dots">
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Connected -->
+      <div id="gdriveConnected" style="display:none">
+        <div
+          style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
+          <span style="font-size:20px">✓</span>
+          <div style="flex:1">
+            <div style="font-weight:600">Connesso a Google Drive</div>
+            <div id="gdriveUserEmail" class="muted" style="font-size:12px"></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="gdriveDisconnect">🔌 Disconnetti</button>
+          <button id="gdriveRestore">📥 Ripristina Backup</button>
+          <button id="gdriveManualBackup" class="ghost">💾 Backup Manuale</button>
+        </div>
+      </div>
+  </div>
+  </details>
 
 
-    <section id="list" class="list" style="margin-top:var(--space-3)"></section>
-    <p class="footer">Tutto resta in locale (localStorage). Nessuna dipendenza esterna. Pronto per GitHub Pages.</p>
+  <section id="list" class="list" style="margin-top:var(--space-3)"></section>
+  <p class="footer">Tutto resta in locale (localStorage). Nessuna dipendenza esterna. Pronto per GitHub Pages.</p>
   </div>
 
-  <script>
+  <script type="module">
     (function () {
       const $ = (s) => document.querySelector(s);
       const $$ = (s) => Array.from(document.querySelectorAll(s));
@@ -486,6 +667,138 @@
         const current = document.documentElement.getAttribute("data-theme") || "light";
         applyTheme(current === "dark" ? "light" : "dark");
       });
+
+      // =====================================================
+      // HELPER: ROBUST CONFIG PARSER
+      // =====================================================
+      function parseConfig(input) {
+        let configStr = input.trim();
+        // Try to clean up JS object syntax if pasted directly from console
+        // Remove "const firebaseConfig =" part and trailing semicolon
+        configStr = configStr.replace(/^(const|var|let)\s+\w+\s*=\s*/, "").replace(/;$/, "");
+
+        // Remove comments
+        configStr = configStr.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+
+        try {
+          // Try strict JSON parse first
+          return JSON.parse(configStr);
+        } catch (jsonErr) {
+          // Fallback: Try to eval as JS object (for unquoted keys)
+          try {
+            return new Function("return " + configStr)();
+          } catch (evalErr) {
+            throw new Error("Formato non riconosciuto. Assicurati di copiare l'oggetto {...}");
+          }
+        }
+      }
+
+      // =====================================================
+      // WIZARD HELPER CLASS
+      // =====================================================
+      window.Wizard = {
+        state: {
+          // Firebase removed
+          gdrive: { step: 1, total: 2 }
+        },
+
+        goTo(service, step) {
+          const container = document.querySelector(`#${service}Disconnected`);
+          if (!container) return;
+
+          // Hide all steps
+          container.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+
+          // Show target step
+          const target = container.querySelector(`.wizard-step[data-step="${step}"]`);
+          if (target) target.classList.add('active');
+
+          // Update dots
+          const dots = container.querySelectorAll('.step-dot');
+          dots.forEach((dot, idx) => {
+            if (idx + 1 === step) dot.className = "step-dot active";
+            else if (idx + 1 < step) dot.className = "step-dot completed";
+            else dot.className = "step-dot";
+          });
+
+          this.state[service].step = step;
+        },
+
+        next(service) {
+          this.goTo(service, this.state[service].step + 1);
+        },
+
+        prev(service) {
+          // For GDrive, prevent going back from step 1
+          if (service === 'gdrive' && this.state.gdrive.step === 1) return;
+          this.goTo(service, this.state[service].step - 1);
+        },
+
+        validateAndNext(service) {
+          if (service === 'firebase') {
+            try {
+              const cfg = parseConfig($("#firebaseConfig").value);
+
+              if (!cfg || !cfg.apiKey || !cfg.projectId) {
+                throw new Error("Mancano campi obbligatori (apiKey, projectId, etc)");
+              }
+
+              this.next(service);
+            } catch (e) {
+              alert("Configurazione non valida: " + e.message + "\n\nSuggerimento: Copia l'intero oggetto 'const firebaseConfig = { ... }' dalla console di Firebase.");
+            }
+          }
+          if (service === 'gdrive') {
+            // Always custom mode now
+            const cid = $("#gdriveClientId").value.trim();
+            if (!cid) { alert("Inserisci un Client ID"); return; }
+            // Basic regex check
+            if (!/^\d{12,}-[a-zA-Z0-9_-]{10,}\.apps\.googleusercontent\.com$/.test(cid)) {
+              alert("Formato Client ID non valido"); return;
+            }
+            this.next(service);
+          }
+        },
+
+        selectDriveMode(mode) {
+          this.state.gdrive.mode = mode;
+          if (mode === 'preset') {
+            this.goTo('gdrive', 3);
+          } else {
+            this.goTo('gdrive', 2);
+          }
+        }
+      };
+
+
+      // =====================================================
+      // TAB SWITCHING LOGIC
+      // =====================================================
+
+      // =====================================================
+      // TAB SWITCHING LOGIC
+      // =====================================================
+      function initTabSwitching() {
+        const tabBtns = $$('.tab-btn');
+        tabBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const targetTab = btn.dataset.tab;
+
+            // Update active button
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Update active panel
+            $$('.tab-panel').forEach(panel => panel.classList.remove('active'));
+            const targetPanel = $(`#${targetTab}-panel`);
+            if (targetPanel) targetPanel.classList.add('active');
+          });
+        });
+      }
+
+      // Initialize tab switching
+      initTabSwitching();
+
 
       let data = load();
       function load() {
@@ -584,6 +897,51 @@
         return "";
       }
 
+      const Actions = {
+        async add(item) {
+          if (FirebaseSync.isConnected) {
+            try { await FirebaseSync.create(item); }
+            catch (e) { alert("Errore salvataggio cloud: " + e.message); return; }
+          } else {
+            data.unshift(item);
+            persist(); render();
+          }
+        },
+        async update(id, updates) {
+          const idx = data.findIndex(x => x.id === id);
+          if (idx === -1) return;
+          const newItem = { ...data[idx], ...updates, updated: Date.now() };
+
+          if (FirebaseSync.isConnected) {
+            try { await FirebaseSync.update(newItem); }
+            catch (e) { alert("Errore aggiornamento cloud: " + e.message); }
+          } else {
+            data[idx] = newItem;
+            persist(); render();
+          }
+        },
+        async delete(id) {
+          if (FirebaseSync.isConnected) {
+            if (!confirm("Eliminare da Firebase?")) return;
+            try { await FirebaseSync.remove(id); }
+            catch (e) { alert("Errore eliminazione cloud: " + e.message); }
+          } else {
+            if (!confirm("Eliminare questo link?")) return;
+            data = data.filter(x => x.id !== id);
+            persist(); render();
+          }
+        },
+        async clearAll() {
+          if (confirm("Sicuro di voler svuotare tutto?")) {
+            if (FirebaseSync.isConnected) {
+              alert("Cancellazione massiva non supportata su Cloud per sicurezza. Disconnettiti per cancellare locale.");
+            } else {
+              data = []; persist(); render();
+            }
+          }
+        }
+      };
+
       $("#saveBtn").addEventListener("click", () => {
         const url = $("#url").value.trim();
         const title = $("#title").value.trim();
@@ -593,8 +951,9 @@
         const err = validate(url, title);
         if (err) { $("#formError").textContent = err; return; }
 
-        data.unshift({ id: uid(), url, title, summary, tags, created: Date.now(), updated: Date.now() });
-        persist(); resetForm(); render();
+        const item = { id: uid(), url, title, summary, tags, created: Date.now(), updated: Date.now() };
+        Actions.add(item);
+        resetForm();
       });
 
       $("#resetBtn").addEventListener("click", resetForm);
@@ -640,21 +999,15 @@
           if (err) { alert(err); return; }
           const idx = data.findIndex(x => x.id === id);
           if (idx >= 0) {
-            data[idx] = { ...data[idx], url, title, summary: payload["summary"], tags, updated: Date.now() };
-            persist(); render();
+            Actions.update(id, { url, title, summary: payload["summary"], tags });
           }
         }
         if (act === "del") {
-          if (confirm("Eliminare questo link?")) {
-            data = data.filter(x => x.id !== id);
-            persist(); render();
-          }
+          Actions.delete(id);
         }
       });
 
-      $("#clearAll").addEventListener("click", () => {
-        if (confirm("Sicuro di voler svuotare tutto?")) { data = []; persist(); render(); }
-      });
+      $("#clearAll").addEventListener("click", () => Actions.clearAll());
 
       $("#exportBtn").addEventListener("click", () => {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -689,18 +1042,17 @@
         if (cmd && e.key.toLowerCase() === "e") { e.preventDefault(); $("#exportBtn").click(); }
       });
 
+
       // =====================================================
       // GOOGLE DRIVE AUTO-BACKUP MODULE
       // =====================================================
       const GoogleDriveBackup = (() => {
         // Default CLIENT_ID generato da Google Identity Services
         // Questo è un CLIENT_ID pubblico sicuro da usare per app client-side
-        const GDRIVE_DEFAULT_CLIENT_ID = "1068770927838-ck7829qm3vj7m8uepn13hbqvpl7pr8sq.apps.googleusercontent.com";
-
         const GDRIVE_CLIENT_ID_KEY = "gdrive_client_id";
         const GDRIVE_TOKEN_KEY = "gdrive_access_token";
         const GDRIVE_EMAIL_KEY = "gdrive_user_email";
-        const GDRIVE_USE_PRESET_KEY = "gdrive_use_preset";
+        // REMOVED: GDRIVE_USE_PRESET_KEY
         const GDRIVE_SETUP_COMPLETE_KEY = "gdrive_setup_complete";
         const MAX_BACKUPS = 10;
         const BACKUP_PREFIX = "link-organizer-backup-";
@@ -747,22 +1099,14 @@
 
         // Get stored CLIENT_ID
         function getClientId() {
-          const usePreset = localStorage.getItem(GDRIVE_USE_PRESET_KEY) === "true";
-          if (usePreset) return GDRIVE_DEFAULT_CLIENT_ID;
-          return localStorage.getItem(GDRIVE_CLIENT_ID_KEY) || $("#gdriveClientId").value.trim();
+          return localStorage.getItem(GDRIVE_CLIENT_ID_KEY) || ($("#gdriveClientId") ? $("#gdriveClientId").value.trim() : "");
         }
 
         // Save CLIENT_ID
-        function saveClientId(clientId, usePreset = false) {
-          if (usePreset) {
-            localStorage.setItem(GDRIVE_USE_PRESET_KEY, "true");
-            localStorage.setItem(GDRIVE_CLIENT_ID_KEY, GDRIVE_DEFAULT_CLIENT_ID);
-          } else {
-            localStorage.setItem(GDRIVE_USE_PRESET_KEY, "false");
-            localStorage.setItem(GDRIVE_CLIENT_ID_KEY, clientId);
-            if ($("#gdriveClientId")) {
-              $("#gdriveClientId").value = clientId;
-            }
+        function saveClientId(clientId) {
+          localStorage.setItem(GDRIVE_CLIENT_ID_KEY, clientId);
+          if ($("#gdriveClientId")) {
+            $("#gdriveClientId").value = clientId;
           }
           markSetupComplete();
         }
@@ -794,32 +1138,17 @@
         function updateUI() {
           const connected = isConnected();
           const email = localStorage.getItem(GDRIVE_EMAIL_KEY);
-          const usePreset = localStorage.getItem(GDRIVE_USE_PRESET_KEY) === "true";
-          const setupComplete = isSetupComplete();
-
-          // Show wizard only if setup not complete and not connected
-          $("#gdriveSetupWizard").style.display = (!setupComplete && !connected) ? "block" : "none";
 
           // Show appropriate mode based on state
           if (connected) {
-            $("#gdriveSimpleMode").style.display = "none";
-            $("#gdriveAdvancedMode").style.display = "none";
+            $("#gdriveDisconnected").style.display = "none";
             $("#gdriveConnected").style.display = "block";
-            if (email) {
-              $("#gdriveUserEmail").textContent = email;
-            }
-          } else if (setupComplete) {
-            // Setup complete, show normal mode
-            $("#gdriveSimpleMode").style.display = usePreset ? "block" : "none";
-            $("#gdriveAdvancedMode").style.display = usePreset ? "none" : "block";
+            if (email) $("#gdriveUserEmail").textContent = email;
+          } else {
             $("#gdriveConnected").style.display = "none";
-
-            // Update validation in advanced mode
-            const clientId = getClientId();
-            if (clientId && !usePreset && $("#gdriveClientId")) {
-              $("#gdriveClientId").value = clientId;
-              updateClientIdValidation(clientId);
-            }
+            $("#gdriveDisconnected").style.display = "block";
+            // Reset wizard to step 1
+            window.Wizard.goTo('gdrive', 1);
           }
         }
 
@@ -842,11 +1171,23 @@
         }
 
         // OAuth2 authentication
-        async function authenticate(usePreset = false) {
-          const clientId = usePreset ? GDRIVE_DEFAULT_CLIENT_ID : getClientId();
+        async function authenticate() {
+          // Always use custom client ID
+          const cid = $("#gdriveClientId") ? $("#gdriveClientId").value.trim() : null;
+          if (cid) saveClientId(cid);
 
-          // Validate CLIENT_ID format (skip for preset/default)
-          if (!usePreset && !validateClientId(clientId)) {
+          const clientId = getClientId();
+
+          // DEBUG: Verify Client ID
+          console.log("Authenticating with Client ID:", clientId);
+          if (clientId.includes("1068770927838")) {
+            alert("⚠️ ATTENZIONE: Stai usando ancora il vecchio ID demo disattivo. Inserisci il TUO ID.");
+            localStorage.removeItem(GDRIVE_CLIENT_ID_KEY);
+            return false;
+          }
+
+          // Validate CLIENT_ID format
+          if (!validateClientId(clientId)) {
             showErrorDialog(
               "❌ CLIENT_ID non valido",
               "Il formato del CLIENT_ID non è corretto.",
@@ -862,7 +1203,7 @@
             return false;
           }
 
-          saveClientId(clientId, usePreset);
+          saveClientId(clientId);
           await initGoogleAPI();
 
           return new Promise((resolve) => {
@@ -1175,104 +1516,38 @@
           updateUI();
           setupAutoBackup();
 
-          // Wizard buttons
-          const wizardUsePreset = $("#wizardUsePreset");
-          if (wizardUsePreset) {
-            wizardUsePreset.addEventListener("click", () => {
-              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "true");
-              markSetupComplete();
-              updateUI();
-            });
-          }
-
-          const wizardUseCustom = $("#wizardUseCustom");
-          if (wizardUseCustom) {
-            wizardUseCustom.addEventListener("click", () => {
-              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "false");
-              markSetupComplete();
-              updateUI();
-            });
-          }
-
-          const wizardSkip = $("#wizardSkip");
-          if (wizardSkip) {
-            wizardSkip.addEventListener("click", () => {
-              markSetupComplete();
-              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "true");
-              updateUI();
-            });
-          }
-
-          // Reconfigure button (reset wizard)
-          const reconfigureBtn = $("#gdriveReconfigure");
-          if (reconfigureBtn) {
-            reconfigureBtn.addEventListener("click", () => {
-              if (confirm("Vuoi riconfigurare il metodo di backup di Google Drive?")) {
-                localStorage.removeItem(GDRIVE_SETUP_COMPLETE_KEY);
-                localStorage.removeItem(GDRIVE_USE_PRESET_KEY);
-                localStorage.removeItem(GDRIVE_CLIENT_ID_KEY);
-                updateUI();
-              }
-            });
-          }
-
-          // Quick connect (preset CLIENT_ID)
-          const quickConnectBtn = $("#gdriveQuickConnect");
-          if (quickConnectBtn) {
-            quickConnectBtn.addEventListener("click", () => authenticate(true));
-          }
-
-          // Toggle advanced mode
-          const showAdvancedBtn = $("#gdriveShowAdvanced");
-          if (showAdvancedBtn) {
-            showAdvancedBtn.addEventListener("click", () => {
-              // Switch to custom CLIENT_ID mode
-              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "false");
-              $("#gdriveSimpleMode").style.display = "none";
-              $("#gdriveAdvancedMode").style.display = "block";
-            });
-          }
-
-          const showSimpleBtn = $("#gdriveShowSimple");
-          if (showSimpleBtn) {
-            showSimpleBtn.addEventListener("click", () => {
-              // Switch back to preset mode
-              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "true");
-              $("#gdriveSimpleMode").style.display = "block";
-              $("#gdriveAdvancedMode").style.display = "none";
-            });
-          }
-
-          // Advanced connect (custom CLIENT_ID)
+          // Initialize buttons
           const connectBtn = $("#gdriveConnect");
           if (connectBtn) {
-            connectBtn.addEventListener("click", () => authenticate(false));
-          }
-
-          // CLIENT_ID validation on input
-          const clientIdInput = $("#gdriveClientId");
-          if (clientIdInput) {
-            clientIdInput.addEventListener("input", (e) => {
-              updateClientIdValidation(e.target.value);
+            connectBtn.addEventListener("click", () => {
+              authenticate();
             });
-          }
 
-          // Disconnect button
-          const disconnectBtn = $("#gdriveDisconnect");
-          if (disconnectBtn) {
-            disconnectBtn.addEventListener("click", disconnect);
-          }
+            // Disconnect button
+            const disconnectBtn = $("#gdriveDisconnect");
+            if (disconnectBtn) {
+              disconnectBtn.addEventListener("click", disconnect);
+            }
 
-          // Restore backup button
-          const restoreBtn = $("#gdriveRestore");
-          if (restoreBtn) {
-            restoreBtn.addEventListener("click", restoreBackup);
-          }
+            // Restore backup button
+            const restoreBtn = $("#gdriveRestore");
+            if (restoreBtn) {
+              restoreBtn.addEventListener("click", restoreBackup);
+            }
 
-          // Manual backup button
-          const manualBackupBtn = $("#gdriveManualBackup");
-          if (manualBackupBtn) {
-            manualBackupBtn.addEventListener("click", manualBackup);
+            // Manual backup button
+            const manualBackupBtn = $("#gdriveManualBackup");
+            if (manualBackupBtn) {
+              manualBackupBtn.addEventListener("click", manualBackup);
+            }
+
+            // CLIENT_ID validation on input
+            const clientIdInput = $("#gdriveClientId");
+            if (clientIdInput) {
+              clientIdInput.addEventListener("input", (e) => {
+                updateClientIdValidation(e.target.value);
+              });
+            }
           }
         }
 
