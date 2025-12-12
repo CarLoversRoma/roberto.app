@@ -8,501 +8,289 @@
   <meta name="description" content="Organizza i tuoi link in locale (offline), con ricerca, tag, import/export.">
   <style>
     :root {
-      /* Palette: Premium SaaS (Indigo/Violet/Slate) */
-      --primary: #6366f1;
-      /* Indigo 500 */
-      --primary-hover: #4f46e5;
-      /* Indigo 600 */
-      --bg-body: #f8fafc;
-      /* Slate 50 */
-      --bg-card: #ffffff;
-      --bg-input: #f1f5f9;
-      /* Slate 100 */
-      --text-main: #0f172a;
-      /* Slate 900 */
-      --text-muted: #64748b;
-      /* Slate 500 */
-      --border: #e2e8f0;
-      /* Slate 200 */
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      --radius: 16px;
+      --bg: #fafafa;
+      --panel: #ffffff;
+      --border: #e5e7eb;
+      --text: #111827;
+      --sub: #6b7280;
+      --btn: #f3f4f6;
+      --btn-text: #111827;
+      --acc: #0ea5e9;
+      --warn-from: #ef4444;
+      --warn-to: #f59e0b;
+      --warn-text: #1a0c0c;
+      --radius: 14px;
       --radius-sm: 10px;
-      --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      --danger: #ef4444;
-      --success: #10b981;
-      --warning: #f59e0b;
+      --space-1: 6px;
+      --space-2: 10px;
+      --space-3: 14px;
+      --space-4: 18px;
+      --space-5: 24px;
     }
 
     [data-theme="dark"] {
-      --bg-body: #0f172a;
-      /* Slate 900 */
-      --bg-card: #1e293b;
-      /* Slate 800 */
-      --bg-input: #334155;
-      /* Slate 700 */
-      --text-main: #f8fafc;
-      /* Slate 50 */
-      --text-muted: #94a3b8;
-      /* Slate 400 */
-      --border: #334155;
-      /* Slate 700 */
-      --primary: #818cf8;
-      /* Indigo 400 */
-      --primary-hover: #6366f1;
-      /* Indigo 500 */
+      --bg: #0b0e13;
+      --panel: #0f1319;
+      --border: #1f2732;
+      --text: #e5e7eb;
+      --sub: #9ca3af;
+      --btn: #161b22;
+      --btn-text: #e5e7eb;
+      --acc: #22d3ee;
+      --warn-from: #ef4444;
+      --warn-to: #f59e0b;
+      --warn-text: #1a0c0c;
     }
 
     * {
-      box-sizing: border-box;
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
     }
 
     body {
       margin: 0;
-      background-color: var(--bg-body);
-      color: var(--text-main);
-      font-family: var(--font-stack);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      background: var(--bg);
+      color: var(--text);
+      font: 15.5px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
 
-    /* === Layout === */
-    .app-container {
-      max-width: 1000px;
+    .container {
+      max-width: 960px;
       margin: 0 auto;
-      padding: 2rem 1rem;
+      padding: var(--space-5)
     }
 
-    /* === Header === */
     header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 2.5rem;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border);
+      gap: var(--space-3);
+      justify-content: space-between;
+      margin-bottom: var(--space-4)
     }
 
     .brand {
       display: flex;
-      align-items: center;
-      gap: 0.75rem;
+      gap: var(--space-3);
+      align-items: center
     }
 
-    .logo-box {
-      width: 42px;
-      height: 42px;
-      background: linear-gradient(135deg, var(--primary), #a855f7);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 800;
-      font-size: 20px;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    .logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--acc);
+      opacity: .15
     }
 
     h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
       margin: 0;
-      letter-spacing: -0.025em;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: .2px
     }
 
-    .status-badges {
-      display: flex;
-      gap: 0.5rem;
+    .bar {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: var(--space-2);
       align-items: center;
-      margin-left: 1rem;
+      width: 100%
     }
 
-    /* === Controls Bar === */
-    .controls {
-      display: flex;
-      gap: 0.75rem;
-    }
-
-    /* === UI Elements === */
-    .card {
-      background: var(--bg-card);
+    input[type="text"],
+    input[type="url"],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: var(--shadow-sm);
-      transition: box-shadow 0.2s ease, transform 0.2s ease;
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    label {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-muted);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      outline: none;
+      min-height: 40px
     }
 
     input,
+    textarea,
     select,
-    textarea {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      background: var(--bg-input);
-      border: 1px solid transparent;
-      /* No border by default for cleaner look */
-      border-radius: var(--radius-sm);
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 0.95rem;
-      transition: all 0.2s ease;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      outline: none;
-      background: var(--bg-card);
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    button {
+      font: inherit
     }
 
     textarea {
-      min-height: 100px;
-      resize: vertical;
+      min-height: 84px;
+      resize: vertical
     }
 
     button {
-      cursor: pointer;
-      padding: 0.75rem 1.25rem;
+      appearance: none;
+      border: 1px solid var(--border);
       border-radius: var(--radius-sm);
+      padding: 10px 14px;
       font-weight: 600;
-      font-size: 0.9rem;
-      border: none;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
+      cursor: pointer;
+      background: var(--btn);
+      color: var(--btn-text)
     }
 
-    button:active {
-      transform: scale(0.98);
+    button.primary {
+      background: var(--acc);
+      border-color: var(--acc);
+      color: white
     }
 
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-      box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+    button.warn {
+      background: linear-gradient(135deg, var(--warn-from), var(--warn-to));
+      border: 0;
+      color: var(--warn-text)
     }
 
-    .btn-primary:hover {
-      background: var(--primary-hover);
+    button.ghost {
+      background: transparent
     }
 
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-muted);
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid rgba(14, 165, 233, .5);
+      outline-offset: 2px
     }
 
-    .btn-ghost:hover {
-      background: var(--bg-input);
-      color: var(--text-main);
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger);
-    }
-
-    .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.2);
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1.5rem;
-    }
-
-    .grid-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    /* === Link List === */
-    .list-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 1.5rem;
-      margin-top: 2rem;
-    }
-
-    .link-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      height: 100%;
-    }
-
-    .link-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-3px);
-      border-color: var(--primary);
-    }
-
-    .link-header {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-
-    .link-icon {
-      width: 40px;
-      height: 40px;
-      background: var(--bg-input);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      flex-shrink: 0;
-    }
-
-    .link-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .link-title {
-      font-weight: 700;
-      font-size: 1.05rem;
-      margin-bottom: 0.25rem;
-      /* truncate */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .link-url {
-      color: var(--primary);
-      font-size: 0.85rem;
-      text-decoration: none;
-      /* truncate */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: block;
-    }
-
-    .link-summary {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      flex-grow: 1;
-    }
-
-    .tags-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .tag-pill {
-      background: var(--bg-input);
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 99px;
-      font-weight: 500;
-    }
-
-    .link-footer {
-      border-top: 1px solid var(--border);
-      margin-top: auto;
-      padding-top: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .link-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .action-btn {
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      border-radius: 6px;
-      background: transparent;
-      color: var(--text-muted);
-      border: 1px solid transparent;
-    }
-
-    .action-btn:hover {
-      background: var(--bg-input);
-      color: var(--text-main);
-    }
-
-    /* === Utilities === */
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      background: var(--bg-input);
-      color: var(--text-muted);
-    }
-
-    .pill.synced {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    /* Green */
-    .pill.local {
-      background: #f1f5f9;
-      color: #64748b;
-    }
-
-    /* Gray */
-
-    /* === Cloud Services Details === */
-    details.cloud-services>summary {
-      list-style: none;
-      background: var(--bg-card);
+    .card {
+      background: var(--panel);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 1rem 1.5rem;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-      transition: all 0.2s;
+      padding: var(--space-4)
     }
 
-    details.cloud-services[open]>summary {
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      border-bottom-color: transparent;
-      background: var(--bg-input);
-    }
-
-    .cloud-panel-content {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-top: none;
-      border-bottom-left-radius: var(--radius);
-      border-bottom-right-radius: var(--radius);
-      padding: 1.5rem;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 1rem;
-      border-bottom: 2px solid var(--border);
-      margin-bottom: 1.5rem;
-    }
-
-    .tab-btn {
-      background: none;
-      border: none;
-      padding: 0.75rem 0.5rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      cursor: pointer;
-    }
-
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    /* Wizard Steps */
-    .wizard-container {
-      background: var(--bg-input);
-      border-radius: var(--radius-sm);
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .step-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--border);
-      border-radius: 50%;
-      display: inline-block;
-      margin: 0 4px;
-      transition: all 0.3s;
-    }
-
-    .step-dot.active {
-      background: var(--primary);
-      transform: scale(1.3);
-    }
-
-    .step-dot.completed {
-      background: var(--success);
-    }
-
-    /* Edit Box */
-    .editbox {
-      margin-top: 1rem;
-      background: var(--bg-input);
-      padding: 1rem;
-      border-radius: var(--radius-sm);
+    .grid {
       display: grid;
-      gap: 0.75rem;
-      animation: fadeIn 0.3s ease;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3)
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap
     }
 
-    /* Responsive */
-    @media (max-width: 640px) {
+    .list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--space-3)
+    }
 
-      .grid-2,
-      .grid-row {
+    .item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2)
+    }
+
+    .row {
+      display: flex;
+      gap: var(--space-2);
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap
+    }
+
+    .row .left {
+      display: flex;
+      gap: var(--space-2);
+      align-items: flex-start;
+      min-width: 0;
+      flex: 1 1 260px
+    }
+
+    .row .right {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      justify-content: flex-end
+    }
+
+    .url {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%
+    }
+
+    .muted {
+      color: var(--sub);
+      font-size: 12.5px
+    }
+
+    .tag {
+      display: inline-flex;
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: .12rem .5rem;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-right: 6px;
+      margin-top: 6px
+    }
+
+    .pill {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      color: var(--sub)
+    }
+
+    .footer {
+      margin-top: var(--space-4);
+      color: var(--sub);
+      font-size: 12.5px;
+      text-align: center
+    }
+
+    .editbox {
+      display: grid;
+      gap: var(--space-2);
+      margin-top: var(--space-2)
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr
+      }
+
+      .bar {
         grid-template-columns: 1fr;
+        gap: var(--space-2)
+      }
+    }
+
+    @media (max-width: 480px) {
+      .list {
+        grid-template-columns: 1fr
       }
 
-      header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: stretch;
-      }
-
-      .controls {
-        justify-content: space-between;
+      .container {
+        padding: 16px
       }
     }
   </style>
@@ -515,297 +303,151 @@
   <!-- Google API Client -->
   <script src="https://apis.google.com/js/api.js"></script>
 
-  <!-- Firebase v10 modular SDK -->
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-    // Expose to window for use in non-module scripts
-    window.firebaseModules = {
-      initializeApp,
-      getAuth,
-      signInAnonymously,
-      onAuthStateChanged,
-      getFirestore,
-      collection,
-      addDoc,
-      updateDoc,
-      deleteDoc,
-      doc,
-      onSnapshot,
-      query,
-      where,
-      getDocs
-    };
-  </script>
-
 </head>
 
 <body>
-  <div class="app-container">
+  <div class="container">
     <header>
       <div class="brand">
-        <div class="logo-box">LO</div>
-        <div>
-          <h1>Link Organizer</h1>
-          <div class="status-badges">
-            <span id="syncBadge" class="pill local">📡 Locale</span>
-            <span id="linkCount" class="pill" style="font-size:11px">0 link</span>
-          </div>
-        </div>
+        <div class="logo" aria-hidden="true"></div>
+        <h1>Link Organizer <span class="pill">Offline</span> <span id="linkCount" class="pill" style="font-size:11px">0
+            link</span></h1>
       </div>
-      <div class="controls">
-        <div style="flex: 1; min-width: 250px;">
-          <input id="q" type="text" placeholder="🔍 Cerca per titolo, tag..." />
-        </div>
-        <select id="sort" style="width: auto;">
-          <option value="created_desc">📆 Più recenti</option>
-          <option value="created_asc">📆 Meno recenti</option>
-          <option value="title_asc">🔤 Titolo A→Z</option>
-          <option value="title_desc">🔤 Titolo Z→A</option>
+      <div class="bar">
+        <input id="q" type="text" placeholder="Cerca per titolo, summary, tag o dominio…" />
+        <select id="sort" aria-label="Ordinamento">
+          <option value="created_desc">Più recenti</option>
+          <option value="created_asc">Meno recenti</option>
+          <option value="title_asc">Titolo A→Z</option>
+          <option value="title_desc">Titolo Z→A</option>
         </select>
-        <button id="themeBtn" title="Cambia tema">☀️</button>
+        <button id="themeBtn" title="Cambia tema">☀️/🌙</button>
       </div>
     </header>
 
-    <!-- Main Input Section -->
     <section class="card">
-      <div class="grid-2">
-        <div class="input-group">
+      <div class="grid">
+        <div>
           <label for="url">URL</label>
-          <input id="url" type="url" placeholder="https://esempio.com" />
+          <input id="url" type="url" placeholder="https://…" />
         </div>
-        <div class="input-group">
-          <label for="title">Titolo Pagina</label>
+        <div>
+          <label for="title">Titolo</label>
           <input id="title" type="text" placeholder="Titolo del link" />
         </div>
       </div>
-
-      <div class="input-group" style="margin-top: 1.5rem;">
-        <label for="summary">Note / Riassunto</label>
-        <textarea id="summary" placeholder="Aggiungi una breve descrizione..."></textarea>
+      <div style="margin-top:var(--space-3)">
+        <label for="summary">Summary / Note</label>
+        <textarea id="summary" placeholder="Breve descrizione o appunti"></textarea>
       </div>
-
-      <div class="grid-2" style="margin-top: 1.5rem;">
-        <div class="input-group">
-          <label for="tags">Tag</label>
-          <input id="tags" type="text" placeholder="es. lavoro, design, tutorial (separati da virgola)" />
+      <div class="grid" style="margin-top:var(--space-3)">
+        <div>
+          <label for="tags">Tag (separate da virgola)</label>
+          <input id="tags" type="text" placeholder="es. lavoro, ai, frontend" />
         </div>
-
-        <div class="input-group">
+        <div>
           <label>Azioni</label>
-          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <button class="btn-primary" id="saveBtn">➕ Aggiungi</button>
-            <button class="btn-ghost" id="resetBtn">Pulisci</button>
+          <div class="actions">
+            <button class="primary" id="saveBtn">Aggiungi</button>
+            <button class="ghost" id="resetBtn">Pulisci</button>
+            <span style="flex:1"></span>
+            <button id="exportBtn">Export JSON</button>
+            <label style="display:inline-flex;gap:8px;align-items:center">
+              <input id="importFile" type="file" accept="application/json" style="display:none">
+              <button id="importBtn">Import JSON</button>
+            </label>
           </div>
         </div>
       </div>
-
-      <div id="formError" style="margin-top:1rem; color:var(--danger); font-size:0.9rem; font-weight:600;"></div>
-
-      <div
-        style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); display:flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-        <label
-          style="cursor:pointer; display:flex; align-items:center; gap:0.5rem; color:var(--text-muted); font-size:0.9rem;">
-          <span style="font-size:1.2rem;">📂</span>
-          <span style="text-decoration: underline;">Importa JSON</span>
-          <input id="importFile" type="file" accept="application/json" style="display:none">
-          <!-- Hidden button to keep JS happy if it attaches click listener -->
-          <button id="importBtn" style="display:none"></button>
-        </label>
-        <button id="exportBtn" class="btn-ghost" style="font-size:0.9rem;">⬇️ Esporta Backup</button>
-        <div style="flex:1"></div>
-        <button id="clearAll" class="btn-danger" style="font-size:0.8rem;">🗑️ Svuota tutto</button>
-      </div>
+      <div id="formError" class="muted" style="margin-top:var(--space-2);color:#dc2626"></div>
     </section>
 
-    <!-- Cloud Services Section -->
-    <details class="cloud-services" style="margin-top: 2rem;">
-      <summary>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <h3>☁️ Servizi Cloud</h3>
-          <span id="cloudStatus" class="pill local">Non configurato</span>
-        </div>
-        <span style="font-size:1.2rem; opacity:0.5;">▼</span>
-      </summary>
+    <section style="margin-top:var(--space-3);display:flex;gap:var(--space-2);align-items:center">
+      <span class="pill">⌘/Ctrl + K</span>
+      <span class="pill">⌘/Ctrl + S</span>
+      <span class="pill">⌘/Ctrl + E</span>
+      <span style="flex:1"></span>
+      <button id="clearAll" class="warn">Svuota tutto</button>
+    </section>
 
-      <div class="cloud-panel-content">
+    <!-- Google Drive Section -->
+    <section class="card" style="margin-top:var(--space-3)">
+      <h3 style="margin:0 0 var(--space-3) 0;font-size:16px;font-weight:700">☁️ Google Drive Auto-Backup</h3>
 
-        <!-- Tabs -->
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="firebase">🔥 Firebase Sync</button>
-          <button class="tab-btn" data-tab="gdrive">📦 Google Drive Backup</button>
-        </div>
-
-        <!-- Firebase Panel -->
-        <div id="firebase-panel" class="tab-panel active">
-          <!-- Connected State -->
-          <div id="firebaseConnected" style="display:none">
-            <div
-              style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
-              <span style="font-size:20px">✓</span>
-              <div style="flex:1">
-                <div style="font-weight:600">Connesso a Firebase</div>
-                <div id="firebaseUserId" class="muted" style="font-size:12px"></div>
-              </div>
-            </div>
-            <div class="actions">
-              <button id="firebaseDisconnect">🔌 Disconnetti</button>
-              <button id="firebaseForceSync" class="ghost">🔄 Sincronizza Ora</button>
-            </div>
+      <!-- Setup Wizard (First Run) -->
+      <div id="gdriveSetupWizard" style="display:none">
+        <div
+          style="display:grid;gap:var(--space-3);padding:var(--space-3);background:var(--bg);border-radius:var(--radius)">
+          <div style="text-align:center">
+            <div style="font-size:48px;margin-bottom:var(--space-2)">🚀</div>
+            <h4 style="margin:0 0 var(--space-2) 0;font-size:16px">Configura Google Drive Auto-Backup</h4>
+            <p class="muted" style="margin:0">Scegli come vuoi configurare i backup automatici</p>
           </div>
 
-          <!-- Wizard State -->
-          <div id="firebaseDisconnected" class="wizard-container">
-            <!-- Step 1: Intro -->
-            <div class="wizard-step active" data-step="1">
-              <div class="wizard-header">
-                <h3>🔥 Firebase Live Sync</h3>
-                <p class="muted">Sincronizza i tuoi link in tempo reale su tutti i tuoi dispositivi.</p>
-              </div>
-              <div style="text-align:center;margin:2em 0;font-size:3em">📡 ↔️ 📱</div>
-              <div class="wizard-actions">
-                <span></span>
-                <button class="primary" onclick="window.Wizard.next('firebase')">Inizia Configurazione →</button>
-              </div>
-            </div>
+          <div style="display:grid;gap:var(--space-2)">
+            <button id="wizardUsePreset" class="primary" style="padding:var(--space-3);text-align:left">
+              <div style="font-weight:700;margin-bottom:4px">🎯 Setup Rapido (Consigliato)</div>
+              <div class="muted" style="font-size:13px;font-weight:400">Usa la configurazione predefinita. Pronto in 1
+                click!</div>
+            </button>
 
-            <!-- Step 2: Config Input -->
-            <div class="wizard-step" data-step="2">
-              <div class="wizard-header">
-                <h3>📝 Configurazione</h3>
-                <p class="muted">Incolla il JSON di configurazione di Firebase.</p>
-              </div>
-              <textarea id="firebaseConfig" placeholder='{"apiKey":"...","authDomain":"...","projectId":"..."}'
-                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true"
-                style="min-height:120px;font-family:monospace;font-size:12px;width:100%"></textarea>
-              <div class="muted" style="font-size:12px;margin-top:var(--space-2)">
-                Dalla <a href="https://console.firebase.google.com/" target="_blank" style="color:var(--acc)">Firebase
-                  Console</a>: Project Settings → General → SDK setup/configuration.
-              </div>
-              <div class="wizard-actions">
-                <button class="ghost" onclick="window.Wizard.prev('firebase')">← Indietro</button>
-                <button class="primary" onclick="window.Wizard.validateAndNext('firebase')">Verifica e Continua
-                  →</button>
-              </div>
-            </div>
+            <button id="wizardUseCustom" class="ghost" style="padding:var(--space-3);text-align:left">
+              <div style="font-weight:700;margin-bottom:4px">⚙️ Configurazione Personalizzata</div>
+              <div class="muted" style="font-size:13px;font-weight:400">Usa il tuo progetto Google Cloud personale</div>
+            </button>
+          </div>
 
-            <!-- Step 3: Connect -->
-            <div class="wizard-step" data-step="3">
-              <div class="wizard-header">
-                <h3>🔌 Connessione</h3>
-                <p class="muted">Pronto per connettersi.</p>
-              </div>
-              <div
-                style="background:var(--panel);padding:var(--space-2);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
-                <p><strong>Configurazione valida!</strong> ✅</p>
-                <p class="muted" style="font-size:12px">Clicca su Connetti per avviare la sincronizzazione.</p>
-              </div>
-              <div class="wizard-actions">
-                <button class="ghost" onclick="window.Wizard.prev('firebase')">← Indietro</button>
-                <button id="firebaseConnect" class="primary">stabilisci Connessione 🚀</button>
-              </div>
-            </div>
+          <button id="wizardSkip" class="ghost" style="font-size:13px">Salta (configura più tardi)</button>
+        </div>
+      </div>
 
-            <!-- Dots -->
-            <div class="wizard-steps" id="firebase-dots">
-              <div class="step-dot active"></div>
-              <div class="step-dot"></div>
-              <div class="step-dot"></div>
-            </div>
+      <!-- Simple Mode (Default) -->
+      <div id="gdriveSimpleMode" style="display:none">
+        <div style="display:grid;gap:var(--space-3)">
+          <p class="muted" style="margin:0">Backup automatico dei tuoi link su Google Drive ogni volta che chiudi l'app.
+          </p>
+          <div class="actions">
+            <button id="gdriveQuickConnect" class="primary">🚀 Connetti Google Drive</button>
+            <button id="gdriveShowAdvanced" class="ghost" style="font-size:13px">⚙️ Usa CLIENT_ID
+              Personalizzato</button>
+            <button id="gdriveReconfigure" class="ghost" style="font-size:13px">🔧 Cambia Configurazione</button>
           </div>
         </div>
+      </div>
 
-        <!-- Google Drive Panel -->
-        <div id="gdrive-panel" class="tab-panel">
-          <!-- Connected State -->
-          <div id="gdriveConnected" style="display:none">
-            <div
-              style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
-              <span style="font-size:20px">✓</span>
-              <div style="flex:1">
-                <div style="font-weight:600">Connesso a Google Drive</div>
-                <div id="gdriveUserEmail" class="muted" style="font-size:12px"></div>
-              </div>
-            </div>
-            <div class="actions">
-              <button id="gdriveDisconnect">🔌 Disconnetti</button>
-              <button id="gdriveRestore">📥 Ripristina Backup</button>
-              <button id="gdriveManualBackup" class="ghost">💾 Backup Manuale</button>
+      <!-- Advanced Mode -->
+      <div id="gdriveAdvancedMode" style="display:none">
+        <div style="display:grid;gap:var(--space-3)">
+          <div style="display:flex;align-items:center;gap:var(--space-2)">
+            <button id="gdriveShowSimple" class="ghost" style="font-size:13px">← Torna al Setup Rapido</button>
+          </div>
+          <div>
+            <label for="gdriveClientId">
+              Google Cloud CLIENT_ID
+              <span id="clientIdValidation" style="margin-left:8px;font-size:12px"></span>
+            </label>
+            <input id="gdriveClientId" type="text"
+              placeholder="123456789012-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com" />
+            <div class="muted" style="margin-top:4px">
+              Ottieni il tuo CLIENT_ID dalla <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
+                style="color:var(--acc)">Google Cloud Console</a>
             </div>
           </div>
-
-          <!-- Wizard State -->
-          <div id="gdriveDisconnected" class="wizard-container">
-            <!-- Step 1: Config (Was Step 2) -->
-            <div class="wizard-step active" data-step="1">
-              <div class="wizard-header">
-                <h3>📦 Google Drive Backup</h3>
-                <p class="muted">Configura il backup automatico sul tuo Drive.</p>
-              </div>
-              <div style="display:grid;gap:var(--space-2)">
-                <div
-                  style="background:var(--btn);padding:var(--space-2);border-radius:var(--radius-sm);font-size:13px;line-height:1.5">
-                  <strong>Come ottenere il Client ID (Gratis):</strong>
-                  <ol style="margin:8px 0 8px 20px;padding:0">
-                    <li>Vai su <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
-                        style="color:var(--acc)">Google Cloud Console</a>.</li>
-                    <li>Crea un progetto e clicca "Crea Credenziali" → "ID client OAuth".</li>
-                    <li>Scegli "Applicazione Web".</li>
-                    <li>In <strong>Origini JavaScript autorizzate</strong> aggiungi:
-                      <ul style="margin:4px 0 4px 16px;padding:0;list-style-type:disc">
-                        <li><code
-                            style="background:var(--bg);padding:2px 4px;border-radius:4px">http://localhost:8000</code>
-                        </li>
-                        <li><code style="background:var(--bg);padding:2px 4px;border-radius:4px"
-                            id="currentOriginCode"></code> (URL Attuale)</li>
-                      </ul>
-                    </li>
-                    <script>document.getElementById("currentOriginCode").textContent = window.location.origin;</script>
-                    <li>Copia il <strong>Client ID</strong> qui sotto.</li>
-                  </ol>
-                </div>
-                <label for="gdriveClientId" style="margin-top:var(--space-2)">Google Cloud CLIENT_ID</label>
-                <input id="gdriveClientId" type="text" placeholder="123456789012-xxxxx.apps.googleusercontent.com" />
-                <div id="clientIdFeedback" class="muted" style="font-size:12px"></div>
-              </div>
-              <div class="wizard-actions">
-                <span></span>
-                <button class="primary" onclick="window.Wizard.validateAndNext('gdrive')">Verifica e Continua →</button>
-              </div>
-            </div>
-
-            <!-- Step 2: Auth (Was Step 3) -->
-            <div class="wizard-step" data-step="2">
-              <div class="wizard-header">
-                <h3>🔐 Autorizzazione</h3>
-                <p class="muted">Autorizza l'applicazione ad accedere a Drive.</p>
-              </div>
-              <div style="text-align:center;margin:2em 0">
-                <p>Si aprirà un popup di Google per il login.</p>
-              </div>
-              <div class="wizard-actions">
-                <button class="ghost" onclick="window.Wizard.prev('gdrive')">← Indietro</button>
-                <button id="gdriveConnect" class="primary">Autorizza con Google 🔗</button>
-              </div>
-            </div>
-
-            <!-- Dots -->
-            <div class="wizard-steps" id="gdrive-dots">
-              <div class="step-dot active"></div>
-              <div class="step-dot"></div>
-            </div>
+          <div class="actions">
+            <button id="gdriveConnect" class="primary">🔗 Connetti Google Drive</button>
           </div>
         </div>
-        <!-- Connected -->
-        <div id="gdriveConnected" style="display:none">
+      </div>
+
+      <!-- Connected State -->
+      <div id="gdriveConnected" style="display:none">
+        <div style="display:grid;gap:var(--space-3)">
           <div
-            style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
+            style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm)">
             <span style="font-size:20px">✓</span>
             <div style="flex:1">
               <div style="font-weight:600">Connesso a Google Drive</div>
-              <div id="gdriveUserEmail" class="muted" style="font-size:12px"></div>
+              <div id="gdriveUserEmail" class="muted" style="font-size:13px"></div>
             </div>
           </div>
           <div class="actions">
@@ -814,15 +456,14 @@
             <button id="gdriveManualBackup" class="ghost">💾 Backup Manuale</button>
           </div>
         </div>
-      </div>
-    </details>
+    </section>
 
 
     <section id="list" class="list" style="margin-top:var(--space-3)"></section>
     <p class="footer">Tutto resta in locale (localStorage). Nessuna dipendenza esterna. Pronto per GitHub Pages.</p>
   </div>
 
-  <script type="module">
+  <script>
     (function () {
       const $ = (s) => document.querySelector(s);
       const $$ = (s) => Array.from(document.querySelectorAll(s));
@@ -845,138 +486,6 @@
         const current = document.documentElement.getAttribute("data-theme") || "light";
         applyTheme(current === "dark" ? "light" : "dark");
       });
-
-      // =====================================================
-      // HELPER: ROBUST CONFIG PARSER
-      // =====================================================
-      function parseConfig(input) {
-        let configStr = input.trim();
-        // Try to clean up JS object syntax if pasted directly from console
-        // Remove "const firebaseConfig =" part and trailing semicolon
-        configStr = configStr.replace(/^(const|var|let)\s+\w+\s*=\s*/, "").replace(/;$/, "");
-
-        // Remove comments
-        configStr = configStr.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
-
-        try {
-          // Try strict JSON parse first
-          return JSON.parse(configStr);
-        } catch (jsonErr) {
-          // Fallback: Try to eval as JS object (for unquoted keys)
-          try {
-            return new Function("return " + configStr)();
-          } catch (evalErr) {
-            throw new Error("Formato non riconosciuto. Assicurati di copiare l'oggetto {...}");
-          }
-        }
-      }
-
-      // =====================================================
-      // WIZARD HELPER CLASS
-      // =====================================================
-      window.Wizard = {
-        state: {
-          firebase: { step: 1, total: 3 },
-          gdrive: { step: 1, total: 2 }
-        },
-
-        goTo(service, step) {
-          const container = document.querySelector(`#${service}Disconnected`);
-          if (!container) return;
-
-          // Hide all steps
-          container.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
-
-          // Show target step
-          const target = container.querySelector(`.wizard-step[data-step="${step}"]`);
-          if (target) target.classList.add('active');
-
-          // Update dots
-          const dots = container.querySelectorAll('.step-dot');
-          dots.forEach((dot, idx) => {
-            if (idx + 1 === step) dot.className = "step-dot active";
-            else if (idx + 1 < step) dot.className = "step-dot completed";
-            else dot.className = "step-dot";
-          });
-
-          this.state[service].step = step;
-        },
-
-        next(service) {
-          this.goTo(service, this.state[service].step + 1);
-        },
-
-        prev(service) {
-          // For GDrive, prevent going back from step 1
-          if (service === 'gdrive' && this.state.gdrive.step === 1) return;
-          this.goTo(service, this.state[service].step - 1);
-        },
-
-        validateAndNext(service) {
-          if (service === 'firebase') {
-            try {
-              const cfg = parseConfig($("#firebaseConfig").value);
-
-              if (!cfg || !cfg.apiKey || !cfg.projectId) {
-                throw new Error("Mancano campi obbligatori (apiKey, projectId, etc)");
-              }
-
-              this.next(service);
-            } catch (e) {
-              alert("Configurazione non valida: " + e.message + "\n\nSuggerimento: Copia l'intero oggetto 'const firebaseConfig = { ... }' dalla console di Firebase.");
-            }
-          }
-          if (service === 'gdrive') {
-            // Always custom mode now
-            const cid = $("#gdriveClientId").value.trim();
-            if (!cid) { alert("Inserisci un Client ID"); return; }
-            // Basic regex check
-            if (!/^\d{12,}-[a-zA-Z0-9_-]{10,}\.apps\.googleusercontent\.com$/.test(cid)) {
-              alert("Formato Client ID non valido"); return;
-            }
-            this.next(service);
-          }
-        },
-
-        selectDriveMode(mode) {
-          this.state.gdrive.mode = mode;
-          if (mode === 'preset') {
-            this.goTo('gdrive', 3);
-          } else {
-            this.goTo('gdrive', 2);
-          }
-        }
-      };
-
-
-      // =====================================================
-      // TAB SWITCHING LOGIC
-      // =====================================================
-
-      // =====================================================
-      // TAB SWITCHING LOGIC
-      // =====================================================
-      function initTabSwitching() {
-        const tabBtns = $$('.tab-btn');
-        tabBtns.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const targetTab = btn.dataset.tab;
-
-            // Update active button
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Update active panel
-            $$('.tab-panel').forEach(panel => panel.classList.remove('active'));
-            const targetPanel = $(`#${targetTab}-panel`);
-            if (targetPanel) targetPanel.classList.add('active');
-          });
-        });
-      }
-
-      // Initialize tab switching
-      initTabSwitching();
-
 
       let data = load();
       function load() {
@@ -1015,45 +524,40 @@
 
         for (const row of rows) {
           const el = document.createElement("div");
-          el.className = "card link-card";
+          el.className = "card item";
           el.innerHTML = `
-            <div class="link-header">
-              <div class="link-icon">🔗</div>
-              <div class="link-info">
-                <div class="link-title" title="${escapeAttr(row.title)}">${escapeHtml(row.title || "(senza titolo)")}</div>
-                <a href="${escapeAttr(row.url)}" target="_blank" class="link-url" title="${escapeAttr(row.url)}">${escapeHtml(row.url)}</a>
-              </div>
+        <div class="row">
+          <div class="left">
+            <div class="avatar" aria-hidden="true">🔗</div>
+            <div style="min-width:0">
+              <div style="font-weight:600">${escapeHtml(row.title || "(senza titolo)")}</div>
+              <div class="muted url">${escapeHtml(row.url)}</div>
             </div>
-            
-            <div class="link-summary">${escapeHtml(row.summary || "")}</div>
-            
-            <div class="tags-row">
-              ${row.tags.map(t => `<span class="tag-pill">#${escapeHtml(t)}</span>`).join("")}
-            </div>
-
-            <div class="link-footer">
-              <span>${new Date(row.updated || row.created).toLocaleDateString()}</span>
-              <div class="link-actions">
-                <button class="action-btn" data-act="open" data-id="${row.id}" title="Apri">↗️</button>
-                <button class="action-btn" data-act="copy" data-id="${row.id}" title="Copia Link">📋</button>
-                <button class="action-btn" data-act="edit" data-id="${row.id}" title="Modifica">✏️</button>
-                <button class="action-btn" data-act="del" data-id="${row.id}" title="Elimina" style="color:var(--danger)">🗑️</button>
-              </div>
-            </div>
-          `;
+          </div>
+          <div class="right">
+            <button data-act="open" data-id="${row.id}">Apri</button>
+            <button data-act="copy" data-id="${row.id}">Copia URL</button>
+            <button data-act="edit" data-id="${row.id}">Modifica</button>
+            <button class="warn" data-act="del" data-id="${row.id}">Elimina</button>
+          </div>
+        </div>
+        <div class="muted" style="word-break:break-word">${escapeHtml(row.summary || "")}</div>
+        <div>${row.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join("")}</div>
+        <div class="muted">${new Date(row.updated || row.created).toLocaleString()}</div>
+      `;
           list.appendChild(el);
 
           const editBox = document.createElement("div");
           editBox.className = "editbox";
           editBox.style.display = "none";
           editBox.innerHTML = `
-        <input type="text" value="${escapeAttr(row.title)}" data-field="title" aria-label="Titolo" placeholder="Titolo">
-        <input type="url" value="${escapeAttr(row.url)}" data-field="url" aria-label="URL" placeholder="URL">
-        <textarea data-field="summary" aria-label="Summary / Note" placeholder="Descrizione">${escapeHtml(row.summary || "")}</textarea>
-        <input type="text" value="${escapeAttr(row.tags.join(", "))}" data-field="tags" aria-label="Tag" placeholder="Tags">
+        <input type="text" value="${escapeAttr(row.title)}" data-field="title" aria-label="Titolo">
+        <input type="url" value="${escapeAttr(row.url)}" data-field="url" aria-label="URL">
+        <textarea data-field="summary" aria-label="Summary / Note">${escapeHtml(row.summary || "")}</textarea>
+        <input type="text" value="${escapeAttr(row.tags.join(", "))}" data-field="tags" aria-label="Tag">
         <div class="actions">
-          <button data-act="saveEdit" data-id="${row.id}" class="btn-primary">Salva Modifiche</button>
-          <button data-act="cancelEdit" data-id="${row.id}" class="btn-ghost">Annulla</button>
+          <button data-act="saveEdit" data-id="${row.id}" class="primary">Salva</button>
+          <button data-act="cancelEdit" data-id="${row.id}">Annulla</button>
         </div>
       `;
           el.appendChild(editBox);
@@ -1080,51 +584,6 @@
         return "";
       }
 
-      const Actions = {
-        async add(item) {
-          if (FirebaseSync.isConnected) {
-            try { await FirebaseSync.create(item); }
-            catch (e) { alert("Errore salvataggio cloud: " + e.message); return; }
-          } else {
-            data.unshift(item);
-            persist(); render();
-          }
-        },
-        async update(id, updates) {
-          const idx = data.findIndex(x => x.id === id);
-          if (idx === -1) return;
-          const newItem = { ...data[idx], ...updates, updated: Date.now() };
-
-          if (FirebaseSync.isConnected) {
-            try { await FirebaseSync.update(newItem); }
-            catch (e) { alert("Errore aggiornamento cloud: " + e.message); }
-          } else {
-            data[idx] = newItem;
-            persist(); render();
-          }
-        },
-        async delete(id) {
-          if (FirebaseSync.isConnected) {
-            if (!confirm("Eliminare da Firebase?")) return;
-            try { await FirebaseSync.remove(id); }
-            catch (e) { alert("Errore eliminazione cloud: " + e.message); }
-          } else {
-            if (!confirm("Eliminare questo link?")) return;
-            data = data.filter(x => x.id !== id);
-            persist(); render();
-          }
-        },
-        async clearAll() {
-          if (confirm("Sicuro di voler svuotare tutto?")) {
-            if (FirebaseSync.isConnected) {
-              alert("Cancellazione massiva non supportata su Cloud per sicurezza. Disconnettiti per cancellare locale.");
-            } else {
-              data = []; persist(); render();
-            }
-          }
-        }
-      };
-
       $("#saveBtn").addEventListener("click", () => {
         const url = $("#url").value.trim();
         const title = $("#title").value.trim();
@@ -1134,9 +593,8 @@
         const err = validate(url, title);
         if (err) { $("#formError").textContent = err; return; }
 
-        const item = { id: uid(), url, title, summary, tags, created: Date.now(), updated: Date.now() };
-        Actions.add(item);
-        resetForm();
+        data.unshift({ id: uid(), url, title, summary, tags, created: Date.now(), updated: Date.now() });
+        persist(); resetForm(); render();
       });
 
       $("#resetBtn").addEventListener("click", resetForm);
@@ -1182,15 +640,21 @@
           if (err) { alert(err); return; }
           const idx = data.findIndex(x => x.id === id);
           if (idx >= 0) {
-            Actions.update(id, { url, title, summary: payload["summary"], tags });
+            data[idx] = { ...data[idx], url, title, summary: payload["summary"], tags, updated: Date.now() };
+            persist(); render();
           }
         }
         if (act === "del") {
-          Actions.delete(id);
+          if (confirm("Eliminare questo link?")) {
+            data = data.filter(x => x.id !== id);
+            persist(); render();
+          }
         }
       });
 
-      $("#clearAll").addEventListener("click", () => Actions.clearAll());
+      $("#clearAll").addEventListener("click", () => {
+        if (confirm("Sicuro di voler svuotare tutto?")) { data = []; persist(); render(); }
+      });
 
       $("#exportBtn").addEventListener("click", () => {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -1226,210 +690,17 @@
       });
 
       // =====================================================
-      // FIREBASE LIVE SYNC MODULE
-      // =====================================================
-      const FirebaseSync = (() => {
-        const STORAGE_KEY_CONFIG = "firebase_config";
-        const COLLECTION_NAME = "links_v1";
-
-        // Modules from window
-        const {
-          initializeApp, getAuth, signInAnonymously, onAuthStateChanged,
-          getFirestore, collection, addDoc, updateDoc, deleteDoc, doc,
-          onSnapshot, query, where, getDocs
-        } = window.firebaseModules;
-
-        let app, auth, db, unsubscribe;
-        let isConnected = false;
-        let currentUser = null;
-
-        function init() {
-          const savedConfig = localStorage.getItem(STORAGE_KEY_CONFIG);
-          if (savedConfig) {
-            $("#firebaseConfig").value = savedConfig;
-            // Optional: Auto-connect? Let's wait for user action or explicit "auto-connect" flag
-            // For now, restoring config in UI is enough.
-          }
-
-          $("#firebaseConnect").addEventListener("click", () => {
-            try {
-              const config = parseConfig($("#firebaseConfig").value);
-              connect(config);
-            } catch (e) {
-              alert("Configurazione JSON non valida! " + e.message);
-            }
-          });
-
-          $("#firebaseDisconnect").addEventListener("click", disconnect);
-
-          $("#firebaseForceSync").addEventListener("click", async () => {
-            if (!isConnected) return;
-            if (confirm("Vuoi caricare tutti i link locali su Firebase? (I duplicati verranno gestiti per ID)")) {
-              await uploadLocalData();
-              alert("Upload completato.");
-            }
-          });
-        }
-
-        async function connect(config) {
-          try {
-            app = initializeApp(config);
-            auth = getAuth(app);
-            db = getFirestore(app);
-
-            // Auth listener
-            onAuthStateChanged(auth, (user) => {
-              currentUser = user;
-              if (user) {
-                console.log("Firebase user:", user.uid);
-                $("#firebaseUserId").textContent = "ID: " + user.uid.slice(0, 6) + "...";
-                startSync();
-              } else {
-                stopSync();
-              }
-            });
-
-            await signInAnonymously(auth);
-
-            // Save config if successful
-            localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
-
-            isConnected = true;
-            updateUI(true);
-
-          } catch (e) {
-            console.error("Firebase connection error:", e);
-            // More detailed error for the user
-            let msg = e.message;
-            if (e.code === 'auth/operation-not-allowed' || e.code === 'auth/admin-restricted-operation') {
-              msg = "L'autenticazione anonima non è abilitata (o è limitata) nella console di Firebase.\n\n" +
-                "1. Vai su https://console.firebase.google.com\n" +
-                "2. Sezione 'Build' -> 'Authentication' -> 'Sign-in method'\n" +
-                "3. Assicurati che 'Anonymous' sia su 'Abilitato'.\n\n" +
-                "Se è già abilitato, controlla che la tua API Key su Google Cloud Console non abbia restrizioni sull'Identity Toolkit API.";
-            } else if (e.code === 'permission-denied') {
-              msg = "Permesso negato. Controlla le regole di sicurezza di Firestore (Security Rules).";
-            }
-            alert("Errore connessione Firebase:\n" + msg);
-            updateUI(false);
-          }
-        }
-
-        function disconnect() {
-          if (auth) auth.signOut();
-          isConnected = false;
-          updateUI(false);
-          // Reload from local storage to ensure clean state
-          data = load();
-          render();
-        }
-
-        function updateUI(connected) {
-          $("#firebaseDisconnected").style.display = connected ? "none" : "block";
-          $("#firebaseConnected").style.display = connected ? "block" : "none";
-          $("#syncBadge").className = connected ? "pill synced" : "pill local";
-          $("#syncBadge").textContent = connected ? "🔥 Live Sync" : "📡 Locale";
-
-          if (!connected) {
-            window.Wizard.goTo('firebase', 1);
-          }
-
-          // Switch tab status
-          const fbTab = document.querySelector('.tab-btn[data-tab="firebase"]');
-          if (fbTab) fbTab.textContent = connected ? "🔥 Firebase Connesso" : "🔥 Firebase Sync";
-        }
-
-        function startSync() {
-          if (unsubscribe) unsubscribe();
-
-          const q = query(collection(db, COLLECTION_NAME));
-          unsubscribe = onSnapshot(q, (snapshot) => {
-            const remoteData = [];
-            snapshot.forEach((doc) => {
-              remoteData.push({ ...doc.data(), id: doc.id });
-            });
-
-            // Merge strategy: Remote wins. 
-            // We map Firestore ID (doc.id) to our ID. 
-            // But wait, our ID is random string. Firestore ID is auto-generated?
-            // Better to use our ID as Firestore Document ID.
-
-            // DATA MAPPING
-            data = remoteData.map(d => ({
-              id: d.id, // Firestore DOC ID = Item ID
-              url: d.url,
-              title: d.title,
-              summary: d.summary,
-              tags: d.tags || [],
-              created: d.created,
-              updated: d.updated
-            }));
-
-            // Update local storage as cache
-            persist();
-            render();
-          }, (error) => {
-            console.error("Sync error:", error);
-            // alert("Errore sync: " + error.message);
-          });
-        }
-
-        function stopSync() {
-          if (unsubscribe) unsubscribe();
-          unsubscribe = null;
-        }
-
-        async function create(item) {
-          // Use item.id as doc ID
-          await updateDoc(doc(db, COLLECTION_NAME, item.id), item).catch(async (e) => {
-            // If doc doesn't exist, setDoc (or use setDoc directly)
-            // Firestore standard: setDoc(doc(db, col, id), data)
-            const { setDoc, doc } = window.firebaseModules; // Re-import if needed safely
-            await window.firebaseModules.setDoc(doc(db, COLLECTION_NAME, item.id), item);
-          });
-        }
-
-        // Helper to use setDoc which handles both create and overwrite
-        async function setItem(item) {
-          const { setDoc, doc } = window.firebaseModules;
-          await setDoc(doc(db, COLLECTION_NAME, item.id), item);
-        }
-
-        async function remove(id) {
-          const { deleteDoc, doc } = window.firebaseModules;
-          await deleteDoc(doc(db, COLLECTION_NAME, id));
-        }
-
-        async function uploadLocalData() {
-          for (const item of data) {
-            await setItem(item);
-          }
-        }
-
-        return {
-          init,
-          connect,
-          disconnect,
-          get isConnected() { return isConnected; },
-          create: setItem, // In our case create and update are same (upsert with ID)
-          update: setItem,
-          remove
-        };
-      })();
-
-      // Initialize Firebase Module
-      FirebaseSync.init();
-
-      // =====================================================
       // GOOGLE DRIVE AUTO-BACKUP MODULE
       // =====================================================
       const GoogleDriveBackup = (() => {
         // Default CLIENT_ID generato da Google Identity Services
         // Questo è un CLIENT_ID pubblico sicuro da usare per app client-side
+        const GDRIVE_DEFAULT_CLIENT_ID = "1068770927838-ck7829qm3vj7m8uepn13hbqvpl7pr8sq.apps.googleusercontent.com";
+
         const GDRIVE_CLIENT_ID_KEY = "gdrive_client_id";
         const GDRIVE_TOKEN_KEY = "gdrive_access_token";
         const GDRIVE_EMAIL_KEY = "gdrive_user_email";
-        // REMOVED: GDRIVE_USE_PRESET_KEY
+        const GDRIVE_USE_PRESET_KEY = "gdrive_use_preset";
         const GDRIVE_SETUP_COMPLETE_KEY = "gdrive_setup_complete";
         const MAX_BACKUPS = 10;
         const BACKUP_PREFIX = "link-organizer-backup-";
@@ -1476,14 +747,22 @@
 
         // Get stored CLIENT_ID
         function getClientId() {
-          return localStorage.getItem(GDRIVE_CLIENT_ID_KEY) || ($("#gdriveClientId") ? $("#gdriveClientId").value.trim() : "");
+          const usePreset = localStorage.getItem(GDRIVE_USE_PRESET_KEY) === "true";
+          if (usePreset) return GDRIVE_DEFAULT_CLIENT_ID;
+          return localStorage.getItem(GDRIVE_CLIENT_ID_KEY) || $("#gdriveClientId").value.trim();
         }
 
         // Save CLIENT_ID
-        function saveClientId(clientId) {
-          localStorage.setItem(GDRIVE_CLIENT_ID_KEY, clientId);
-          if ($("#gdriveClientId")) {
-            $("#gdriveClientId").value = clientId;
+        function saveClientId(clientId, usePreset = false) {
+          if (usePreset) {
+            localStorage.setItem(GDRIVE_USE_PRESET_KEY, "true");
+            localStorage.setItem(GDRIVE_CLIENT_ID_KEY, GDRIVE_DEFAULT_CLIENT_ID);
+          } else {
+            localStorage.setItem(GDRIVE_USE_PRESET_KEY, "false");
+            localStorage.setItem(GDRIVE_CLIENT_ID_KEY, clientId);
+            if ($("#gdriveClientId")) {
+              $("#gdriveClientId").value = clientId;
+            }
           }
           markSetupComplete();
         }
@@ -1515,17 +794,32 @@
         function updateUI() {
           const connected = isConnected();
           const email = localStorage.getItem(GDRIVE_EMAIL_KEY);
+          const usePreset = localStorage.getItem(GDRIVE_USE_PRESET_KEY) === "true";
+          const setupComplete = isSetupComplete();
+
+          // Show wizard only if setup not complete and not connected
+          $("#gdriveSetupWizard").style.display = (!setupComplete && !connected) ? "block" : "none";
 
           // Show appropriate mode based on state
           if (connected) {
-            $("#gdriveDisconnected").style.display = "none";
+            $("#gdriveSimpleMode").style.display = "none";
+            $("#gdriveAdvancedMode").style.display = "none";
             $("#gdriveConnected").style.display = "block";
-            if (email) $("#gdriveUserEmail").textContent = email;
-          } else {
+            if (email) {
+              $("#gdriveUserEmail").textContent = email;
+            }
+          } else if (setupComplete) {
+            // Setup complete, show normal mode
+            $("#gdriveSimpleMode").style.display = usePreset ? "block" : "none";
+            $("#gdriveAdvancedMode").style.display = usePreset ? "none" : "block";
             $("#gdriveConnected").style.display = "none";
-            $("#gdriveDisconnected").style.display = "block";
-            // Reset wizard to step 1
-            window.Wizard.goTo('gdrive', 1);
+
+            // Update validation in advanced mode
+            const clientId = getClientId();
+            if (clientId && !usePreset && $("#gdriveClientId")) {
+              $("#gdriveClientId").value = clientId;
+              updateClientIdValidation(clientId);
+            }
           }
         }
 
@@ -1548,23 +842,11 @@
         }
 
         // OAuth2 authentication
-        async function authenticate() {
-          // Always use custom client ID
-          const cid = $("#gdriveClientId") ? $("#gdriveClientId").value.trim() : null;
-          if (cid) saveClientId(cid);
+        async function authenticate(usePreset = false) {
+          const clientId = usePreset ? GDRIVE_DEFAULT_CLIENT_ID : getClientId();
 
-          const clientId = getClientId();
-
-          // DEBUG: Verify Client ID
-          console.log("Authenticating with Client ID:", clientId);
-          if (clientId.includes("1068770927838")) {
-            alert("⚠️ ATTENZIONE: Stai usando ancora il vecchio ID demo disattivo. Inserisci il TUO ID.");
-            localStorage.removeItem(GDRIVE_CLIENT_ID_KEY);
-            return false;
-          }
-
-          // Validate CLIENT_ID format
-          if (!validateClientId(clientId)) {
+          // Validate CLIENT_ID format (skip for preset/default)
+          if (!usePreset && !validateClientId(clientId)) {
             showErrorDialog(
               "❌ CLIENT_ID non valido",
               "Il formato del CLIENT_ID non è corretto.",
@@ -1580,7 +862,7 @@
             return false;
           }
 
-          saveClientId(clientId);
+          saveClientId(clientId, usePreset);
           await initGoogleAPI();
 
           return new Promise((resolve) => {
@@ -1893,38 +1175,104 @@
           updateUI();
           setupAutoBackup();
 
-          // Initialize buttons
+          // Wizard buttons
+          const wizardUsePreset = $("#wizardUsePreset");
+          if (wizardUsePreset) {
+            wizardUsePreset.addEventListener("click", () => {
+              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "true");
+              markSetupComplete();
+              updateUI();
+            });
+          }
+
+          const wizardUseCustom = $("#wizardUseCustom");
+          if (wizardUseCustom) {
+            wizardUseCustom.addEventListener("click", () => {
+              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "false");
+              markSetupComplete();
+              updateUI();
+            });
+          }
+
+          const wizardSkip = $("#wizardSkip");
+          if (wizardSkip) {
+            wizardSkip.addEventListener("click", () => {
+              markSetupComplete();
+              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "true");
+              updateUI();
+            });
+          }
+
+          // Reconfigure button (reset wizard)
+          const reconfigureBtn = $("#gdriveReconfigure");
+          if (reconfigureBtn) {
+            reconfigureBtn.addEventListener("click", () => {
+              if (confirm("Vuoi riconfigurare il metodo di backup di Google Drive?")) {
+                localStorage.removeItem(GDRIVE_SETUP_COMPLETE_KEY);
+                localStorage.removeItem(GDRIVE_USE_PRESET_KEY);
+                localStorage.removeItem(GDRIVE_CLIENT_ID_KEY);
+                updateUI();
+              }
+            });
+          }
+
+          // Quick connect (preset CLIENT_ID)
+          const quickConnectBtn = $("#gdriveQuickConnect");
+          if (quickConnectBtn) {
+            quickConnectBtn.addEventListener("click", () => authenticate(true));
+          }
+
+          // Toggle advanced mode
+          const showAdvancedBtn = $("#gdriveShowAdvanced");
+          if (showAdvancedBtn) {
+            showAdvancedBtn.addEventListener("click", () => {
+              // Switch to custom CLIENT_ID mode
+              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "false");
+              $("#gdriveSimpleMode").style.display = "none";
+              $("#gdriveAdvancedMode").style.display = "block";
+            });
+          }
+
+          const showSimpleBtn = $("#gdriveShowSimple");
+          if (showSimpleBtn) {
+            showSimpleBtn.addEventListener("click", () => {
+              // Switch back to preset mode
+              localStorage.setItem(GDRIVE_USE_PRESET_KEY, "true");
+              $("#gdriveSimpleMode").style.display = "block";
+              $("#gdriveAdvancedMode").style.display = "none";
+            });
+          }
+
+          // Advanced connect (custom CLIENT_ID)
           const connectBtn = $("#gdriveConnect");
           if (connectBtn) {
-            connectBtn.addEventListener("click", () => {
-              authenticate();
+            connectBtn.addEventListener("click", () => authenticate(false));
+          }
+
+          // CLIENT_ID validation on input
+          const clientIdInput = $("#gdriveClientId");
+          if (clientIdInput) {
+            clientIdInput.addEventListener("input", (e) => {
+              updateClientIdValidation(e.target.value);
             });
+          }
 
-            // Disconnect button
-            const disconnectBtn = $("#gdriveDisconnect");
-            if (disconnectBtn) {
-              disconnectBtn.addEventListener("click", disconnect);
-            }
+          // Disconnect button
+          const disconnectBtn = $("#gdriveDisconnect");
+          if (disconnectBtn) {
+            disconnectBtn.addEventListener("click", disconnect);
+          }
 
-            // Restore backup button
-            const restoreBtn = $("#gdriveRestore");
-            if (restoreBtn) {
-              restoreBtn.addEventListener("click", restoreBackup);
-            }
+          // Restore backup button
+          const restoreBtn = $("#gdriveRestore");
+          if (restoreBtn) {
+            restoreBtn.addEventListener("click", restoreBackup);
+          }
 
-            // Manual backup button
-            const manualBackupBtn = $("#gdriveManualBackup");
-            if (manualBackupBtn) {
-              manualBackupBtn.addEventListener("click", manualBackup);
-            }
-
-            // CLIENT_ID validation on input
-            const clientIdInput = $("#gdriveClientId");
-            if (clientIdInput) {
-              clientIdInput.addEventListener("input", (e) => {
-                updateClientIdValidation(e.target.value);
-              });
-            }
+          // Manual backup button
+          const manualBackupBtn = $("#gdriveManualBackup");
+          if (manualBackupBtn) {
+            manualBackupBtn.addEventListener("click", manualBackup);
           }
         }
 
