@@ -600,6 +600,7 @@
               <p class="muted">Incolla il JSON di configurazione di Firebase.</p>
             </div>
             <textarea id="firebaseConfig" placeholder='{"apiKey":"...","authDomain":"...","projectId":"..."}'
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true"
               style="min-height:120px;font-family:monospace;font-size:12px;width:100%"></textarea>
             <div class="muted" style="font-size:12px;margin-top:var(--space-2)">
               Dalla <a href="https://console.firebase.google.com/" target="_blank" style="color:var(--acc)">Firebase
@@ -1276,7 +1277,14 @@
 
           } catch (e) {
             console.error("Firebase connection error:", e);
-            alert("Errore connessione Firebase: " + e.message);
+            // More detailed error for the user
+            let msg = e.message;
+            if (e.code === 'auth/operation-not-allowed') {
+              msg = "L'autenticazione anonima non è abilitata nella console di Firebase. Vai su Authentication > Sign-in method e abilita 'Anonymous'.";
+            } else if (e.code === 'permission-denied') {
+              msg = "Permesso negato. Controlla le regole di sicurezza di Firestore (Security Rules).";
+            }
+            alert("Errore connessione Firebase:\n" + msg);
             updateUI(false);
           }
         }
