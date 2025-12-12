@@ -1134,6 +1134,20 @@
           localStorage.removeItem(GDRIVE_EMAIL_KEY);
         }
 
+        // Handle API Errors (Token Expiration)
+        function handleApiError(err) {
+          console.error("API Error:", err);
+          // Check for 401 Unauthorized
+          if (err.status === 401 || (err.result && err.result.error && err.result.error.code === 401)) {
+            console.warn("Token expired or invalid. Clearing credentials.");
+            clearCredentials();
+            updateUI();
+            // Don't alert on auto-backup, but maybe toast or silence
+            // We can check if it was user initiated?
+            // For now, minimal intrusion.
+          }
+        }
+
         // Update UI based on connection status
         function updateUI() {
           const connected = isConnected();
@@ -1377,6 +1391,7 @@
             return true;
           } catch (err) {
             console.error("Upload error:", err);
+            handleApiError(err);
             return false;
           }
         }
@@ -1400,6 +1415,7 @@
             return response.result.files || [];
           } catch (err) {
             console.error("List backups error:", err);
+            handleApiError(err);
             return [];
           }
         }
@@ -1421,6 +1437,7 @@
             return response.result;
           } catch (err) {
             console.error("Download backup error:", err);
+            handleApiError(err);
             return null;
           }
         }
@@ -1438,6 +1455,7 @@
             return true;
           } catch (err) {
             console.error("Delete backup error:", err);
+            handleApiError(err);
             return false;
           }
         }
