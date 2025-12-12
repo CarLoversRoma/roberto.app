@@ -453,7 +453,30 @@
   <!-- Google API Client -->
   <script src="https://apis.google.com/js/api.js"></script>
 
+  <!-- Firebase v10 modular SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
+    // Expose to window for use in non-module scripts
+    window.firebaseModules = {
+      initializeApp,
+      getAuth,
+      signInAnonymously,
+      onAuthStateChanged,
+      getFirestore,
+      collection,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      onSnapshot,
+      query,
+      where,
+      getDocs
+    };
+  </script>
 
 </head>
 
@@ -532,15 +555,91 @@
       </summary>
 
       <!-- Tabs -->
-      <div class="tabs" style="display:none">
-        <!-- Tabs removed -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="firebase">🔥 Firebase Sync</button>
+        <button class="tab-btn" data-tab="gdrive">📦 Google Drive Backup</button>
       </div>
 
+      <!-- Firebase Panel -->
+      <div id="firebase-panel" class="tab-panel active">
+        <!-- Connected State -->
+        <div id="firebaseConnected" style="display:none">
+          <div
+            style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
+            <span style="font-size:20px">✓</span>
+            <div style="flex:1">
+              <div style="font-weight:600">Connesso a Firebase</div>
+              <div id="firebaseUserId" class="muted" style="font-size:12px"></div>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="firebaseDisconnect">🔌 Disconnetti</button>
+            <button id="firebaseForceSync" class="ghost">🔄 Sincronizza Ora</button>
+          </div>
+        </div>
 
+        <!-- Wizard State -->
+        <div id="firebaseDisconnected" class="wizard-container">
+          <!-- Step 1: Intro -->
+          <div class="wizard-step active" data-step="1">
+            <div class="wizard-header">
+              <h3>🔥 Firebase Live Sync</h3>
+              <p class="muted">Sincronizza i tuoi link in tempo reale su tutti i tuoi dispositivi.</p>
+            </div>
+            <div style="text-align:center;margin:2em 0;font-size:3em">📡 ↔️ 📱</div>
+            <div class="wizard-actions">
+              <span></span>
+              <button class="primary" onclick="window.Wizard.next('firebase')">Inizia Configurazione →</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Config Input -->
+          <div class="wizard-step" data-step="2">
+            <div class="wizard-header">
+              <h3>📝 Configurazione</h3>
+              <p class="muted">Incolla il JSON di configurazione di Firebase.</p>
+            </div>
+            <textarea id="firebaseConfig" placeholder='{"apiKey":"...","authDomain":"...","projectId":"..."}'
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true"
+              style="min-height:120px;font-family:monospace;font-size:12px;width:100%"></textarea>
+            <div class="muted" style="font-size:12px;margin-top:var(--space-2)">
+              Dalla <a href="https://console.firebase.google.com/" target="_blank" style="color:var(--acc)">Firebase
+                Console</a>: Project Settings → General → SDK setup/configuration.
+            </div>
+            <div class="wizard-actions">
+              <button class="ghost" onclick="window.Wizard.prev('firebase')">← Indietro</button>
+              <button class="primary" onclick="window.Wizard.validateAndNext('firebase')">Verifica e Continua →</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Connect -->
+          <div class="wizard-step" data-step="3">
+            <div class="wizard-header">
+              <h3>🔌 Connessione</h3>
+              <p class="muted">Pronto per connettersi.</p>
+            </div>
+            <div
+              style="background:var(--panel);padding:var(--space-2);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
+              <p><strong>Configurazione valida!</strong> ✅</p>
+              <p class="muted" style="font-size:12px">Clicca su Connetti per avviare la sincronizzazione.</p>
+            </div>
+            <div class="wizard-actions">
+              <button class="ghost" onclick="window.Wizard.prev('firebase')">← Indietro</button>
+              <button id="firebaseConnect" class="primary">stabilisci Connessione 🚀</button>
+            </div>
+          </div>
+
+          <!-- Dots -->
+          <div class="wizard-steps" id="firebase-dots">
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+          </div>
+        </div>
+      </div>
 
       <!-- Google Drive Panel -->
-      <!-- Google Drive Panel -->
-      <div id="gdrive-panel" class="tab-panel active" style="display:block">
+      <div id="gdrive-panel" class="tab-panel">
         <!-- Connected State -->
         <div id="gdriveConnected" style="display:none">
           <div
@@ -698,7 +797,7 @@
       // =====================================================
       window.Wizard = {
         state: {
-          // Firebase removed
+          firebase: { step: 1, total: 3 },
           gdrive: { step: 1, total: 2 }
         },
 
@@ -1042,6 +1141,200 @@
         if (cmd && e.key.toLowerCase() === "e") { e.preventDefault(); $("#exportBtn").click(); }
       });
 
+      // =====================================================
+      // FIREBASE LIVE SYNC MODULE
+      // =====================================================
+      const FirebaseSync = (() => {
+        const STORAGE_KEY_CONFIG = "firebase_config";
+        const COLLECTION_NAME = "links_v1";
+
+        // Modules from window
+        const {
+          initializeApp, getAuth, signInAnonymously, onAuthStateChanged,
+          getFirestore, collection, addDoc, updateDoc, deleteDoc, doc,
+          onSnapshot, query, where, getDocs
+        } = window.firebaseModules;
+
+        let app, auth, db, unsubscribe;
+        let isConnected = false;
+        let currentUser = null;
+
+        function init() {
+          const savedConfig = localStorage.getItem(STORAGE_KEY_CONFIG);
+          if (savedConfig) {
+            $("#firebaseConfig").value = savedConfig;
+            // Optional: Auto-connect? Let's wait for user action or explicit "auto-connect" flag
+            // For now, restoring config in UI is enough.
+          }
+
+          $("#firebaseConnect").addEventListener("click", () => {
+            try {
+              const config = parseConfig($("#firebaseConfig").value);
+              connect(config);
+            } catch (e) {
+              alert("Configurazione JSON non valida! " + e.message);
+            }
+          });
+
+          $("#firebaseDisconnect").addEventListener("click", disconnect);
+
+          $("#firebaseForceSync").addEventListener("click", async () => {
+            if (!isConnected) return;
+            if (confirm("Vuoi caricare tutti i link locali su Firebase? (I duplicati verranno gestiti per ID)")) {
+              await uploadLocalData();
+              alert("Upload completato.");
+            }
+          });
+        }
+
+        async function connect(config) {
+          try {
+            app = initializeApp(config);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            // Auth listener
+            onAuthStateChanged(auth, (user) => {
+              currentUser = user;
+              if (user) {
+                console.log("Firebase user:", user.uid);
+                $("#firebaseUserId").textContent = "ID: " + user.uid.slice(0, 6) + "...";
+                startSync();
+              } else {
+                stopSync();
+              }
+            });
+
+            await signInAnonymously(auth);
+
+            // Save config if successful
+            localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
+
+            isConnected = true;
+            updateUI(true);
+
+          } catch (e) {
+            console.error("Firebase connection error:", e);
+            // More detailed error for the user
+            let msg = e.message;
+            if (e.code === 'auth/operation-not-allowed' || e.code === 'auth/admin-restricted-operation') {
+              msg = "L'autenticazione anonima non è abilitata (o è limitata) nella console di Firebase.\n\n" +
+                "1. Vai su https://console.firebase.google.com\n" +
+                "2. Sezione 'Build' -> 'Authentication' -> 'Sign-in method'\n" +
+                "3. Assicurati che 'Anonymous' sia su 'Abilitato'.\n\n" +
+                "Se è già abilitato, controlla che la tua API Key su Google Cloud Console non abbia restrizioni sull'Identity Toolkit API.";
+            } else if (e.code === 'permission-denied') {
+              msg = "Permesso negato. Controlla le regole di sicurezza di Firestore (Security Rules).";
+            }
+            alert("Errore connessione Firebase:\n" + msg);
+            updateUI(false);
+          }
+        }
+
+        function disconnect() {
+          if (auth) auth.signOut();
+          isConnected = false;
+          updateUI(false);
+          // Reload from local storage to ensure clean state
+          data = load();
+          render();
+        }
+
+        function updateUI(connected) {
+          $("#firebaseDisconnected").style.display = connected ? "none" : "block";
+          $("#firebaseConnected").style.display = connected ? "block" : "none";
+          $("#syncBadge").className = connected ? "pill synced" : "pill local";
+          $("#syncBadge").textContent = connected ? "🔥 Live Sync" : "📡 Locale";
+
+          if (!connected) {
+            window.Wizard.goTo('firebase', 1);
+          }
+
+          // Switch tab status
+          const fbTab = document.querySelector('.tab-btn[data-tab="firebase"]');
+          if (fbTab) fbTab.textContent = connected ? "🔥 Firebase Connesso" : "🔥 Firebase Sync";
+        }
+
+        function startSync() {
+          if (unsubscribe) unsubscribe();
+
+          const q = query(collection(db, COLLECTION_NAME));
+          unsubscribe = onSnapshot(q, (snapshot) => {
+            const remoteData = [];
+            snapshot.forEach((doc) => {
+              remoteData.push({ ...doc.data(), id: doc.id });
+            });
+
+            // Merge strategy: Remote wins. 
+            // We map Firestore ID (doc.id) to our ID. 
+            // But wait, our ID is random string. Firestore ID is auto-generated?
+            // Better to use our ID as Firestore Document ID.
+
+            // DATA MAPPING
+            data = remoteData.map(d => ({
+              id: d.id, // Firestore DOC ID = Item ID
+              url: d.url,
+              title: d.title,
+              summary: d.summary,
+              tags: d.tags || [],
+              created: d.created,
+              updated: d.updated
+            }));
+
+            // Update local storage as cache
+            persist();
+            render();
+          }, (error) => {
+            console.error("Sync error:", error);
+            // alert("Errore sync: " + error.message);
+          });
+        }
+
+        function stopSync() {
+          if (unsubscribe) unsubscribe();
+          unsubscribe = null;
+        }
+
+        async function create(item) {
+          // Use item.id as doc ID
+          await updateDoc(doc(db, COLLECTION_NAME, item.id), item).catch(async (e) => {
+            // If doc doesn't exist, setDoc (or use setDoc directly)
+            // Firestore standard: setDoc(doc(db, col, id), data)
+            const { setDoc, doc } = window.firebaseModules; // Re-import if needed safely
+            await window.firebaseModules.setDoc(doc(db, COLLECTION_NAME, item.id), item);
+          });
+        }
+
+        // Helper to use setDoc which handles both create and overwrite
+        async function setItem(item) {
+          const { setDoc, doc } = window.firebaseModules;
+          await setDoc(doc(db, COLLECTION_NAME, item.id), item);
+        }
+
+        async function remove(id) {
+          const { deleteDoc, doc } = window.firebaseModules;
+          await deleteDoc(doc(db, COLLECTION_NAME, id));
+        }
+
+        async function uploadLocalData() {
+          for (const item of data) {
+            await setItem(item);
+          }
+        }
+
+        return {
+          init,
+          connect,
+          disconnect,
+          get isConnected() { return isConnected; },
+          create: setItem, // In our case create and update are same (upsert with ID)
+          update: setItem,
+          remove
+        };
+      })();
+
+      // Initialize Firebase Module
+      FirebaseSync.init();
 
       // =====================================================
       // GOOGLE DRIVE AUTO-BACKUP MODULE
@@ -1132,20 +1425,6 @@
         function clearCredentials() {
           localStorage.removeItem(GDRIVE_TOKEN_KEY);
           localStorage.removeItem(GDRIVE_EMAIL_KEY);
-        }
-
-        // Handle API Errors (Token Expiration)
-        function handleApiError(err) {
-          console.error("API Error:", err);
-          // Check for 401 Unauthorized
-          if (err.status === 401 || (err.result && err.result.error && err.result.error.code === 401)) {
-            console.warn("Token expired or invalid. Clearing credentials.");
-            clearCredentials();
-            updateUI();
-            // Don't alert on auto-backup, but maybe toast or silence
-            // We can check if it was user initiated?
-            // For now, minimal intrusion.
-          }
         }
 
         // Update UI based on connection status
@@ -1391,7 +1670,6 @@
             return true;
           } catch (err) {
             console.error("Upload error:", err);
-            handleApiError(err);
             return false;
           }
         }
@@ -1415,7 +1693,6 @@
             return response.result.files || [];
           } catch (err) {
             console.error("List backups error:", err);
-            handleApiError(err);
             return [];
           }
         }
@@ -1437,7 +1714,6 @@
             return response.result;
           } catch (err) {
             console.error("Download backup error:", err);
-            handleApiError(err);
             return null;
           }
         }
@@ -1455,7 +1731,6 @@
             return true;
           } catch (err) {
             console.error("Delete backup error:", err);
-            handleApiError(err);
             return false;
           }
         }
