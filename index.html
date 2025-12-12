@@ -57,9 +57,27 @@
     }
 
     .container {
-      max-width: 1024px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 32px 20px;
+      padding: 0 20px 40px 20px;
+    }
+
+    .container-fluid {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 32px;
+    }
+
+    /* === Top Section (Dashboard Header) === */
+    .top-section {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    [data-theme="dark"] .top-section {
+      background: #172030;
     }
 
     /* === Header === */
@@ -445,66 +463,70 @@
 </head>
 
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <h1>Link Organizer
-          <span id="syncBadge" class="pill local">📡 Locale</span>
-          <span id="linkCount" class="pill" style="font-size:11px">0 link</span>
-        </h1>
-      </div>
-      <div class="bar">
-        <input id="q" type="text" placeholder="Cerca per titolo, summary, tag o dominio…" />
-        <select id="sort" aria-label="Ordinamento">
-          <option value="created_desc">Più recenti</option>
-          <option value="created_asc">Meno recenti</option>
-          <option value="title_asc">Titolo A→Z</option>
-          <option value="title_desc">Titolo Z→A</option>
-        </select>
-        <button id="themeBtn" title="Cambia tema">☀️/🌙</button>
-      </div>
-    </header>
+  <div class="top-section">
+    <div class="container-fluid">
+      <header>
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <h1>Link Organizer
+            <span id="syncBadge" class="pill local">📡 Locale</span>
+            <span id="linkCount" class="pill" style="font-size:11px">0 link</span>
+          </h1>
+        </div>
+        <div class="bar">
+          <input id="q" type="text" placeholder="Cerca per titolo, summary, tag o dominio…" />
+          <select id="sort" aria-label="Ordinamento">
+            <option value="created_desc">Più recenti</option>
+            <option value="created_asc">Meno recenti</option>
+            <option value="title_asc">Titolo A→Z</option>
+            <option value="title_desc">Titolo Z→A</option>
+          </select>
+          <button id="themeBtn" title="Cambia tema">☀️/🌙</button>
+        </div>
+      </header>
 
-    <section class="card">
-      <div class="grid-2">
-        <div>
-          <label for="url">URL</label>
-          <input id="url" type="url" placeholder="https://…" />
-        </div>
-        <div>
-          <label for="title">Titolo</label>
-          <input id="title" type="text" placeholder="Titolo del link" />
-        </div>
-      </div>
-      <div style="margin-top:20px">
-        <label for="summary">Summary / Note</label>
-        <textarea id="summary" placeholder="Breve descrizione o appunti"></textarea>
-      </div>
-      <div class="grid-form" style="margin-top:20px">
-
-        <div>
-          <label for="tags">Tag (separate da virgola)</label>
-          <input id="tags" type="text" placeholder="es. lavoro, ai, frontend" />
-        </div>
-        <div>
-          <label>Azioni</label>
-          <div class="actions">
-            <button class="primary" id="saveBtn">Aggiungi</button>
-            <button class="ghost" id="resetBtn">Pulisci</button>
-            <span style="flex:1"></span>
-            <button id="exportBtn">Export JSON</button>
-            <label style="display:inline-flex;gap:8px;align-items:center">
-              <input id="importFile" type="file" accept="application/json" style="display:none">
-              <button id="importBtn">Import JSON</button>
-            </label>
+      <section class="input-panel">
+        <div class="grid-2">
+          <div>
+            <label for="url">URL</label>
+            <input id="url" type="url" placeholder="https://…" />
+          </div>
+          <div>
+            <label for="title">Titolo</label>
+            <input id="title" type="text" placeholder="Titolo del link" />
           </div>
         </div>
-      </div>
-      <div id="formError" class="muted" style="margin-top:var(--space-2);color:#dc2626"></div>
-    </section>
+        <div style="margin-top:20px">
+          <label for="summary">Summary / Note</label>
+          <textarea id="summary" placeholder="Breve descrizione o appunti"></textarea>
+        </div>
+        <div class="grid-form" style="margin-top:20px">
+          <div>
+            <label for="tags">Tag (separate da virgola)</label>
+            <input id="tags" type="text" placeholder="es. lavoro, ai, frontend" />
+          </div>
+          <div>
+            <label>Azioni</label>
+            <div class="actions">
+              <button class="primary" id="saveBtn">Aggiungi</button>
+              <button class="ghost" id="resetBtn">Pulisci</button>
+              <span style="flex:1"></span>
+              <button id="exportBtn">Export JSON</button>
+              <label style="display:inline-flex;gap:8px;align-items:center">
+                <input id="importFile" type="file" accept="application/json" style="display:none">
+                <button id="importBtn">Import JSON</button>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div id="formError" class="muted" style="margin-top:var(--space-2);color:#dc2626"></div>
+      </section>
+    </div>
+  </div>
 
-    <section style="margin-top:var(--space-3);display:flex;gap:var(--space-2);align-items:center">
+  <div class="container main-content-area">
+    <section
+      style="margin-top:var(--space-3);display:flex;gap:var(--space-2);align-items:center;margin-bottom:var(--space-4)">
       <span class="pill">⌘/Ctrl + K</span>
       <span class="pill">⌘/Ctrl + S</span>
       <span class="pill">⌘/Ctrl + E</span>
