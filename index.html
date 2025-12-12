@@ -838,10 +838,6 @@
                 throw new Error("Mancano campi obbligatori (apiKey, projectId, etc)");
               }
 
-              // If we are here, config is valid. 
-              // We might want to update the textarea to valid JSON for clarity, but optional.
-              // $("#firebaseConfig").value = JSON.stringify(cfg, null, 2);
-
               this.next(service);
             } catch (e) {
               alert("Configurazione non valida: " + e.message + "\n\nSuggerimento: Copia l'intero oggetto 'const firebaseConfig = { ... }' dalla console di Firebase.");
@@ -857,83 +853,22 @@
             }
             this.next(service);
           }
-        }
-      };
-
-      // =====================================================
-      // TAB SWITCHING LOGIC
-      // =====================================================
-      window.Wizard = {
-        state: {
-          firebase: { step: 1, total: 3 },
-          gdrive: { step: 1, mode: 'preset', total: 3 }
-        },
-
-        goTo(service, step) {
-          const container = document.querySelector(`#${service}Disconnected`);
-          if (!container) return;
-
-          // Hide all steps
-          container.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
-
-          // Show target step
-          const target = container.querySelector(`.wizard-step[data-step="${step}"]`);
-          if (target) target.classList.add('active');
-
-          // Update dots
-          const dots = container.querySelectorAll('.step-dot');
-          dots.forEach((dot, idx) => {
-            if (idx + 1 === step) dot.className = "step-dot active";
-            else if (idx + 1 < step) dot.className = "step-dot completed";
-            else dot.className = "step-dot";
-          });
-
-          this.state[service].step = step;
-        },
-
-        next(service) {
-          this.goTo(service, this.state[service].step + 1);
-        },
-
-        prev(service) {
-          this.goTo(service, this.state[service].step - 1);
-        },
-
-        validateAndNext(service) {
-          if (service === 'firebase') {
-            const configStr = $("#firebaseConfig").value.trim();
-            try {
-              const cfg = JSON.parse(configStr);
-              if (!cfg.apiKey || !cfg.projectId) throw new Error("Mancano campi obbligatori");
-              this.next(service);
-            } catch (e) {
-              alert("JSON non valido: " + e.message);
-            }
-          }
-          if (service === 'gdrive') {
-            if (this.state.gdrive.mode === 'custom') {
-              const cid = $("#gdriveClientId").value.trim();
-              if (!cid) { alert("Inserisci un Client ID"); return; }
-              // Basic regex check
-              if (!/^\d{12,}-[a-zA-Z0-9_-]{10,}\.apps\.googleusercontent\.com$/.test(cid)) {
-                alert("Formato Client ID non valido"); return;
-              }
-            }
-            this.next(service);
-          }
         },
 
         selectDriveMode(mode) {
           this.state.gdrive.mode = mode;
-          // If preset, skip step 2 (config) and go directly to 3 (auth)
           if (mode === 'preset') {
-            // Adjust Step 3 UI slightly if needed
             this.goTo('gdrive', 3);
           } else {
             this.goTo('gdrive', 2);
           }
         }
       };
+
+
+      // =====================================================
+      // TAB SWITCHING LOGIC
+      // =====================================================
 
       // =====================================================
       // TAB SWITCHING LOGIC
