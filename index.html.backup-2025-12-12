@@ -8,471 +8,420 @@
   <meta name="description" content="Organizza i tuoi link in locale (offline), con ricerca, tag, import/export.">
   <style>
     :root {
-      /* Palette: Premium SaaS (Indigo/Violet/Slate) */
-      --primary: #6366f1;
-      /* Indigo 500 */
-      --primary-hover: #4f46e5;
-      /* Indigo 600 */
-      --bg-body: #f8fafc;
-      /* Slate 50 */
-      --bg-card: #ffffff;
-      --bg-input: #f1f5f9;
-      /* Slate 100 */
-      --text-main: #0f172a;
-      /* Slate 900 */
-      --text-muted: #64748b;
-      /* Slate 500 */
-      --border: #e2e8f0;
-      /* Slate 200 */
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      --radius: 16px;
+      --bg: #fafafa;
+      --panel: #ffffff;
+      --border: #e5e7eb;
+      --text: #111827;
+      --sub: #6b7280;
+      --btn: #f3f4f6;
+      --btn-text: #111827;
+      --acc: #0ea5e9;
+      --warn-from: #ef4444;
+      --warn-to: #f59e0b;
+      --warn-text: #1a0c0c;
+      --radius: 14px;
       --radius-sm: 10px;
-      --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      --danger: #ef4444;
-      --success: #10b981;
-      --warning: #f59e0b;
+      --space-1: 6px;
+      --space-2: 10px;
+      --space-3: 14px;
+      --space-4: 18px;
+      --space-5: 24px;
     }
 
     [data-theme="dark"] {
-      --bg-body: #0f172a;
-      /* Slate 900 */
-      --bg-card: #1e293b;
-      /* Slate 800 */
-      --bg-input: #334155;
-      /* Slate 700 */
-      --text-main: #f8fafc;
-      /* Slate 50 */
-      --text-muted: #94a3b8;
-      /* Slate 400 */
-      --border: #334155;
-      /* Slate 700 */
-      --primary: #818cf8;
-      /* Indigo 400 */
-      --primary-hover: #6366f1;
-      /* Indigo 500 */
+      --bg: #0b0e13;
+      --panel: #0f1319;
+      --border: #1f2732;
+      --text: #e5e7eb;
+      --sub: #9ca3af;
+      --btn: #161b22;
+      --btn-text: #e5e7eb;
+      --acc: #22d3ee;
+      --warn-from: #ef4444;
+      --warn-to: #f59e0b;
+      --warn-text: #1a0c0c;
     }
 
     * {
-      box-sizing: border-box;
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
     }
 
     body {
       margin: 0;
-      background-color: var(--bg-body);
-      color: var(--text-main);
-      font-family: var(--font-stack);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      background: var(--bg);
+      color: var(--text);
+      font: 15.5px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
 
-    /* === Layout === */
-    .app-container {
-      max-width: 1000px;
+    .container {
+      max-width: 960px;
       margin: 0 auto;
-      padding: 2rem 1rem;
+      padding: var(--space-5)
     }
 
-    /* === Header === */
     header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 2.5rem;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border);
+      gap: var(--space-3);
+      justify-content: space-between;
+      margin-bottom: var(--space-4)
     }
 
     .brand {
       display: flex;
-      align-items: center;
-      gap: 0.75rem;
+      gap: var(--space-3);
+      align-items: center
     }
 
-    .logo-box {
-      width: 42px;
-      height: 42px;
-      background: linear-gradient(135deg, var(--primary), #a855f7);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 800;
-      font-size: 20px;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    .logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--acc);
+      opacity: .15
     }
 
     h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
       margin: 0;
-      letter-spacing: -0.025em;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: .2px
     }
 
-    .status-badges {
-      display: flex;
-      gap: 0.5rem;
+    .bar {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: var(--space-2);
       align-items: center;
-      margin-left: 1rem;
+      width: 100%
     }
 
-    /* === Controls Bar === */
-    .controls {
-      display: flex;
-      gap: 0.75rem;
-    }
-
-    /* === UI Elements === */
-    .card {
-      background: var(--bg-card);
+    input[type="text"],
+    input[type="url"],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: var(--shadow-sm);
-      transition: box-shadow 0.2s ease, transform 0.2s ease;
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    label {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-muted);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      outline: none;
+      min-height: 40px
     }
 
     input,
+    textarea,
     select,
-    textarea {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      background: var(--bg-input);
-      border: 1px solid transparent;
-      /* No border by default for cleaner look */
-      border-radius: var(--radius-sm);
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 0.95rem;
-      transition: all 0.2s ease;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      outline: none;
-      background: var(--bg-card);
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    button {
+      font: inherit
     }
 
     textarea {
-      min-height: 100px;
-      resize: vertical;
+      min-height: 84px;
+      resize: vertical
     }
 
     button {
-      cursor: pointer;
-      padding: 0.75rem 1.25rem;
+      appearance: none;
+      border: 1px solid var(--border);
       border-radius: var(--radius-sm);
+      padding: 10px 14px;
       font-weight: 600;
-      font-size: 0.9rem;
-      border: none;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
+      cursor: pointer;
+      background: var(--btn);
+      color: var(--btn-text)
     }
 
-    button:active {
-      transform: scale(0.98);
+    button.primary {
+      background: var(--acc);
+      border-color: var(--acc);
+      color: white
     }
 
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-      box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+    button.warn {
+      background: linear-gradient(135deg, var(--warn-from), var(--warn-to));
+      border: 0;
+      color: var(--warn-text)
     }
 
-    .btn-primary:hover {
-      background: var(--primary-hover);
+    button.ghost {
+      background: transparent
     }
 
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-muted);
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid rgba(14, 165, 233, .5);
+      outline-offset: 2px
     }
 
-    .btn-ghost:hover {
-      background: var(--bg-input);
-      color: var(--text-main);
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger);
-    }
-
-    .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.2);
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1.5rem;
-    }
-
-    .grid-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    /* === Link List === */
-    .list-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 1.5rem;
-      margin-top: 2rem;
-    }
-
-    .link-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      height: 100%;
-    }
-
-    .link-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-3px);
-      border-color: var(--primary);
-    }
-
-    .link-header {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-
-    .link-icon {
-      width: 40px;
-      height: 40px;
-      background: var(--bg-input);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      flex-shrink: 0;
-    }
-
-    .link-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .link-title {
-      font-weight: 700;
-      font-size: 1.05rem;
-      margin-bottom: 0.25rem;
-      /* truncate */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .link-url {
-      color: var(--primary);
-      font-size: 0.85rem;
-      text-decoration: none;
-      /* truncate */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: block;
-    }
-
-    .link-summary {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      flex-grow: 1;
-    }
-
-    .tags-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .tag-pill {
-      background: var(--bg-input);
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 99px;
-      font-weight: 500;
-    }
-
-    .link-footer {
-      border-top: 1px solid var(--border);
-      margin-top: auto;
-      padding-top: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .link-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .action-btn {
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      border-radius: 6px;
-      background: transparent;
-      color: var(--text-muted);
-      border: 1px solid transparent;
-    }
-
-    .action-btn:hover {
-      background: var(--bg-input);
-      color: var(--text-main);
-    }
-
-    /* === Utilities === */
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      background: var(--bg-input);
-      color: var(--text-muted);
-    }
-
-    .pill.synced {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    /* Green */
-    .pill.local {
-      background: #f1f5f9;
-      color: #64748b;
-    }
-
-    /* Gray */
-
-    /* === Cloud Services Details === */
-    details.cloud-services>summary {
-      list-style: none;
-      background: var(--bg-card);
+    .card {
+      background: var(--panel);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 1rem 1.5rem;
-      cursor: pointer;
+      padding: var(--space-4)
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3)
+    }
+
+    .actions {
       display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap
+    }
+
+    .list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--space-3)
+    }
+
+    .item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2)
+    }
+
+    .row {
+      display: flex;
+      gap: var(--space-2);
+      align-items: flex-start;
       justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-      transition: all 0.2s;
+      flex-wrap: wrap
     }
 
-    details.cloud-services[open]>summary {
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      border-bottom-color: transparent;
-      background: var(--bg-input);
+    .row .left {
+      display: flex;
+      gap: var(--space-2);
+      align-items: flex-start;
+      min-width: 0;
+      flex: 1 1 260px
     }
 
-    .cloud-panel-content {
-      background: var(--bg-card);
+    .row .right {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      justify-content: flex-end
+    }
+
+    .url {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%
+    }
+
+    .muted {
+      color: var(--sub);
+      font-size: 12.5px
+    }
+
+    .tag {
+      display: inline-flex;
+      background: transparent;
       border: 1px solid var(--border);
-      border-top: none;
-      border-bottom-left-radius: var(--radius);
-      border-bottom-right-radius: var(--radius);
-      padding: 1.5rem;
+      padding: .12rem .5rem;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-right: 6px;
+      margin-top: 6px
     }
 
-    /* Tabs */
+    .pill {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      color: var(--sub)
+    }
+
+    .footer {
+      margin-top: var(--space-4);
+      color: var(--sub);
+      font-size: 12.5px;
+      text-align: center
+    }
+
+    .editbox {
+      display: grid;
+      gap: var(--space-2);
+      margin-top: var(--space-2)
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr
+      }
+
+      .bar {
+        grid-template-columns: 1fr;
+        gap: var(--space-2)
+      }
+    }
+
+    @media (max-width: 480px) {
+      .list {
+        grid-template-columns: 1fr
+      }
+
+      .container {
+        padding: 16px
+      }
+    }
+
+    /* === Tab System === */
     .tabs {
       display: flex;
-      gap: 1rem;
-      border-bottom: 2px solid var(--border);
-      margin-bottom: 1.5rem;
+      gap: var(--space-2);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: var(--space-3);
     }
 
     .tab-btn {
       background: none;
       border: none;
-      padding: 0.75rem 0.5rem;
-      color: var(--text-muted);
-      font-weight: 600;
       border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
+      padding: var(--space-2) var(--space-3);
       cursor: pointer;
+      font-weight: 600;
+      color: var(--sub);
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
     }
 
     .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
+      border-bottom-color: var(--acc);
+      color: var(--acc);
     }
 
-    /* Wizard Steps */
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* === Cloud Services Collapsible === */
+    .cloud-services summary {
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      list-style: none;
+      user-select: none;
+    }
+
+    .cloud-services summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .cloud-services[open] summary {
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cloud-services summary h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .cloud-services summary:hover {
+      opacity: 0.8;
+    }
+
+    /* === Sync Badge === */
+    #syncBadge {
+      transition: all 0.3s ease;
+    }
+
+    #syncBadge.synced {
+      background: var(--acc);
+      border-color: var(--acc);
+      color: white;
+    }
+
+    #syncBadge.local {
+      background: transparent;
+      border-color: var(--sub);
+      color: var(--sub);
+    }
+
+    /* === Wizard UI === */
     .wizard-container {
-      background: var(--bg-input);
+      background: var(--bg);
       border-radius: var(--radius-sm);
-      padding: 2rem;
+      padding: var(--space-4);
+      border: 1px solid var(--border);
+    }
+
+    .wizard-header {
+      margin-bottom: var(--space-4);
       text-align: center;
     }
 
+    .wizard-steps {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: var(--space-4);
+    }
+
     .step-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--border);
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      display: inline-block;
-      margin: 0 4px;
-      transition: all 0.3s;
+      background: var(--border);
+      transition: all 0.3s ease;
     }
 
     .step-dot.active {
-      background: var(--primary);
-      transform: scale(1.3);
+      background: var(--acc);
+      transform: scale(1.2);
     }
 
     .step-dot.completed {
-      background: var(--success);
+      background: var(--acc);
+      opacity: 0.5;
     }
 
-    /* Edit Box */
-    .editbox {
-      margin-top: 1rem;
-      background: var(--bg-input);
-      padding: 1rem;
-      border-radius: var(--radius-sm);
-      display: grid;
-      gap: 0.75rem;
+    .wizard-step {
+      display: none;
       animation: fadeIn 0.3s ease;
+    }
+
+    .wizard-step.active {
+      display: block;
     }
 
     @keyframes fadeIn {
@@ -487,23 +436,12 @@
       }
     }
 
-    /* Responsive */
-    @media (max-width: 640px) {
-
-      .grid-2,
-      .grid-row {
-        grid-template-columns: 1fr;
-      }
-
-      header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: stretch;
-      }
-
-      .controls {
-        justify-content: space-between;
-      }
+    .wizard-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--border);
     }
   </style>
 
@@ -543,262 +481,166 @@
 </head>
 
 <body>
-  <div class="app-container">
+  <div class="container">
     <header>
       <div class="brand">
-        <div class="logo-box">LO</div>
-        <div>
-          <h1>Link Organizer</h1>
-          <div class="status-badges">
-            <span id="syncBadge" class="pill local">📡 Locale</span>
-            <span id="linkCount" class="pill" style="font-size:11px">0 link</span>
-          </div>
-        </div>
+        <div class="logo" aria-hidden="true"></div>
+        <h1>Link Organizer
+          <span id="syncBadge" class="pill local">📡 Locale</span>
+          <span id="linkCount" class="pill" style="font-size:11px">0 link</span>
+        </h1>
       </div>
-      <div class="controls">
-        <div style="flex: 1; min-width: 250px;">
-          <input id="q" type="text" placeholder="🔍 Cerca per titolo, tag..." />
-        </div>
-        <select id="sort" style="width: auto;">
-          <option value="created_desc">📆 Più recenti</option>
-          <option value="created_asc">📆 Meno recenti</option>
-          <option value="title_asc">🔤 Titolo A→Z</option>
-          <option value="title_desc">🔤 Titolo Z→A</option>
+      <div class="bar">
+        <input id="q" type="text" placeholder="Cerca per titolo, summary, tag o dominio…" />
+        <select id="sort" aria-label="Ordinamento">
+          <option value="created_desc">Più recenti</option>
+          <option value="created_asc">Meno recenti</option>
+          <option value="title_asc">Titolo A→Z</option>
+          <option value="title_desc">Titolo Z→A</option>
         </select>
-        <button id="themeBtn" title="Cambia tema">☀️</button>
+        <button id="themeBtn" title="Cambia tema">☀️/🌙</button>
       </div>
     </header>
 
-    <!-- Main Input Section -->
     <section class="card">
-      <div class="grid-2">
-        <div class="input-group">
+      <div class="grid">
+        <div>
           <label for="url">URL</label>
-          <input id="url" type="url" placeholder="https://esempio.com" />
+          <input id="url" type="url" placeholder="https://…" />
         </div>
-        <div class="input-group">
-          <label for="title">Titolo Pagina</label>
+        <div>
+          <label for="title">Titolo</label>
           <input id="title" type="text" placeholder="Titolo del link" />
         </div>
       </div>
-
-      <div class="input-group" style="margin-top: 1.5rem;">
-        <label for="summary">Note / Riassunto</label>
-        <textarea id="summary" placeholder="Aggiungi una breve descrizione..."></textarea>
+      <div style="margin-top:var(--space-3)">
+        <label for="summary">Summary / Note</label>
+        <textarea id="summary" placeholder="Breve descrizione o appunti"></textarea>
       </div>
-
-      <div class="grid-2" style="margin-top: 1.5rem;">
-        <div class="input-group">
-          <label for="tags">Tag</label>
-          <input id="tags" type="text" placeholder="es. lavoro, design, tutorial (separati da virgola)" />
+      <div class="grid" style="margin-top:var(--space-3)">
+        <div>
+          <label for="tags">Tag (separate da virgola)</label>
+          <input id="tags" type="text" placeholder="es. lavoro, ai, frontend" />
         </div>
-
-        <div class="input-group">
+        <div>
           <label>Azioni</label>
-          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <button class="btn-primary" id="saveBtn">➕ Aggiungi</button>
-            <button class="btn-ghost" id="resetBtn">Pulisci</button>
+          <div class="actions">
+            <button class="primary" id="saveBtn">Aggiungi</button>
+            <button class="ghost" id="resetBtn">Pulisci</button>
+            <span style="flex:1"></span>
+            <button id="exportBtn">Export JSON</button>
+            <label style="display:inline-flex;gap:8px;align-items:center">
+              <input id="importFile" type="file" accept="application/json" style="display:none">
+              <button id="importBtn">Import JSON</button>
+            </label>
           </div>
         </div>
       </div>
+      <div id="formError" class="muted" style="margin-top:var(--space-2);color:#dc2626"></div>
+    </section>
 
-      <div id="formError" style="margin-top:1rem; color:var(--danger); font-size:0.9rem; font-weight:600;"></div>
-
-      <div
-        style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); display:flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-        <label
-          style="cursor:pointer; display:flex; align-items:center; gap:0.5rem; color:var(--text-muted); font-size:0.9rem;">
-          <span style="font-size:1.2rem;">📂</span>
-          <span style="text-decoration: underline;">Importa JSON</span>
-          <input id="importFile" type="file" accept="application/json" style="display:none">
-          <!-- Hidden button to keep JS happy if it attaches click listener -->
-          <button id="importBtn" style="display:none"></button>
-        </label>
-        <button id="exportBtn" class="btn-ghost" style="font-size:0.9rem;">⬇️ Esporta Backup</button>
-        <div style="flex:1"></div>
-        <button id="clearAll" class="btn-danger" style="font-size:0.8rem;">🗑️ Svuota tutto</button>
-      </div>
+    <section style="margin-top:var(--space-3);display:flex;gap:var(--space-2);align-items:center">
+      <span class="pill">⌘/Ctrl + K</span>
+      <span class="pill">⌘/Ctrl + S</span>
+      <span class="pill">⌘/Ctrl + E</span>
+      <span style="flex:1"></span>
+      <button id="clearAll" class="warn">Svuota tutto</button>
     </section>
 
     <!-- Cloud Services Section -->
-    <details class="cloud-services" style="margin-top: 2rem;">
+    <details class="card cloud-services" style="margin-top:var(--space-3)">
       <summary>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <h3>☁️ Servizi Cloud</h3>
-          <span id="cloudStatus" class="pill local">Non configurato</span>
-        </div>
-        <span style="font-size:1.2rem; opacity:0.5;">▼</span>
+        <h3>☁️ Cloud Services</h3>
+        <span id="cloudStatus" class="muted">Non configurato</span>
       </summary>
 
-      <div class="cloud-panel-content">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="firebase">🔥 Firebase Sync</button>
+        <button class="tab-btn" data-tab="gdrive">📦 Google Drive Backup</button>
+      </div>
 
-        <!-- Tabs -->
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="firebase">🔥 Firebase Sync</button>
-          <button class="tab-btn" data-tab="gdrive">📦 Google Drive Backup</button>
+      <!-- Firebase Panel -->
+      <div id="firebase-panel" class="tab-panel active">
+        <!-- Connected State -->
+        <div id="firebaseConnected" style="display:none">
+          <div
+            style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
+            <span style="font-size:20px">✓</span>
+            <div style="flex:1">
+              <div style="font-weight:600">Connesso a Firebase</div>
+              <div id="firebaseUserId" class="muted" style="font-size:12px"></div>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="firebaseDisconnect">🔌 Disconnetti</button>
+            <button id="firebaseForceSync" class="ghost">🔄 Sincronizza Ora</button>
+          </div>
         </div>
 
-        <!-- Firebase Panel -->
-        <div id="firebase-panel" class="tab-panel active">
-          <!-- Connected State -->
-          <div id="firebaseConnected" style="display:none">
+        <!-- Wizard State -->
+        <div id="firebaseDisconnected" class="wizard-container">
+          <!-- Step 1: Intro -->
+          <div class="wizard-step active" data-step="1">
+            <div class="wizard-header">
+              <h3>🔥 Firebase Live Sync</h3>
+              <p class="muted">Sincronizza i tuoi link in tempo reale su tutti i tuoi dispositivi.</p>
+            </div>
+            <div style="text-align:center;margin:2em 0;font-size:3em">📡 ↔️ 📱</div>
+            <div class="wizard-actions">
+              <span></span>
+              <button class="primary" onclick="window.Wizard.next('firebase')">Inizia Configurazione →</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Config Input -->
+          <div class="wizard-step" data-step="2">
+            <div class="wizard-header">
+              <h3>📝 Configurazione</h3>
+              <p class="muted">Incolla il JSON di configurazione di Firebase.</p>
+            </div>
+            <textarea id="firebaseConfig" placeholder='{"apiKey":"...","authDomain":"...","projectId":"..."}'
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true"
+              style="min-height:120px;font-family:monospace;font-size:12px;width:100%"></textarea>
+            <div class="muted" style="font-size:12px;margin-top:var(--space-2)">
+              Dalla <a href="https://console.firebase.google.com/" target="_blank" style="color:var(--acc)">Firebase
+                Console</a>: Project Settings → General → SDK setup/configuration.
+            </div>
+            <div class="wizard-actions">
+              <button class="ghost" onclick="window.Wizard.prev('firebase')">← Indietro</button>
+              <button class="primary" onclick="window.Wizard.validateAndNext('firebase')">Verifica e Continua →</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Connect -->
+          <div class="wizard-step" data-step="3">
+            <div class="wizard-header">
+              <h3>🔌 Connessione</h3>
+              <p class="muted">Pronto per connettersi.</p>
+            </div>
             <div
-              style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
-              <span style="font-size:20px">✓</span>
-              <div style="flex:1">
-                <div style="font-weight:600">Connesso a Firebase</div>
-                <div id="firebaseUserId" class="muted" style="font-size:12px"></div>
-              </div>
+              style="background:var(--panel);padding:var(--space-2);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
+              <p><strong>Configurazione valida!</strong> ✅</p>
+              <p class="muted" style="font-size:12px">Clicca su Connetti per avviare la sincronizzazione.</p>
             </div>
-            <div class="actions">
-              <button id="firebaseDisconnect">🔌 Disconnetti</button>
-              <button id="firebaseForceSync" class="ghost">🔄 Sincronizza Ora</button>
+            <div class="wizard-actions">
+              <button class="ghost" onclick="window.Wizard.prev('firebase')">← Indietro</button>
+              <button id="firebaseConnect" class="primary">stabilisci Connessione 🚀</button>
             </div>
           </div>
 
-          <!-- Wizard State -->
-          <div id="firebaseDisconnected" class="wizard-container">
-            <!-- Step 1: Intro -->
-            <div class="wizard-step active" data-step="1">
-              <div class="wizard-header">
-                <h3>🔥 Firebase Live Sync</h3>
-                <p class="muted">Sincronizza i tuoi link in tempo reale su tutti i tuoi dispositivi.</p>
-              </div>
-              <div style="text-align:center;margin:2em 0;font-size:3em">📡 ↔️ 📱</div>
-              <div class="wizard-actions">
-                <span></span>
-                <button class="primary" onclick="window.Wizard.next('firebase')">Inizia Configurazione →</button>
-              </div>
-            </div>
-
-            <!-- Step 2: Config Input -->
-            <div class="wizard-step" data-step="2">
-              <div class="wizard-header">
-                <h3>📝 Configurazione</h3>
-                <p class="muted">Incolla il JSON di configurazione di Firebase.</p>
-              </div>
-              <textarea id="firebaseConfig" placeholder='{"apiKey":"...","authDomain":"...","projectId":"..."}'
-                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true"
-                style="min-height:120px;font-family:monospace;font-size:12px;width:100%"></textarea>
-              <div class="muted" style="font-size:12px;margin-top:var(--space-2)">
-                Dalla <a href="https://console.firebase.google.com/" target="_blank" style="color:var(--acc)">Firebase
-                  Console</a>: Project Settings → General → SDK setup/configuration.
-              </div>
-              <div class="wizard-actions">
-                <button class="ghost" onclick="window.Wizard.prev('firebase')">← Indietro</button>
-                <button class="primary" onclick="window.Wizard.validateAndNext('firebase')">Verifica e Continua
-                  →</button>
-              </div>
-            </div>
-
-            <!-- Step 3: Connect -->
-            <div class="wizard-step" data-step="3">
-              <div class="wizard-header">
-                <h3>🔌 Connessione</h3>
-                <p class="muted">Pronto per connettersi.</p>
-              </div>
-              <div
-                style="background:var(--panel);padding:var(--space-2);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
-                <p><strong>Configurazione valida!</strong> ✅</p>
-                <p class="muted" style="font-size:12px">Clicca su Connetti per avviare la sincronizzazione.</p>
-              </div>
-              <div class="wizard-actions">
-                <button class="ghost" onclick="window.Wizard.prev('firebase')">← Indietro</button>
-                <button id="firebaseConnect" class="primary">stabilisci Connessione 🚀</button>
-              </div>
-            </div>
-
-            <!-- Dots -->
-            <div class="wizard-steps" id="firebase-dots">
-              <div class="step-dot active"></div>
-              <div class="step-dot"></div>
-              <div class="step-dot"></div>
-            </div>
+          <!-- Dots -->
+          <div class="wizard-steps" id="firebase-dots">
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
           </div>
         </div>
+      </div>
 
-        <!-- Google Drive Panel -->
-        <div id="gdrive-panel" class="tab-panel">
-          <!-- Connected State -->
-          <div id="gdriveConnected" style="display:none">
-            <div
-              style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
-              <span style="font-size:20px">✓</span>
-              <div style="flex:1">
-                <div style="font-weight:600">Connesso a Google Drive</div>
-                <div id="gdriveUserEmail" class="muted" style="font-size:12px"></div>
-              </div>
-            </div>
-            <div class="actions">
-              <button id="gdriveDisconnect">🔌 Disconnetti</button>
-              <button id="gdriveRestore">📥 Ripristina Backup</button>
-              <button id="gdriveManualBackup" class="ghost">💾 Backup Manuale</button>
-            </div>
-          </div>
-
-          <!-- Wizard State -->
-          <div id="gdriveDisconnected" class="wizard-container">
-            <!-- Step 1: Config (Was Step 2) -->
-            <div class="wizard-step active" data-step="1">
-              <div class="wizard-header">
-                <h3>📦 Google Drive Backup</h3>
-                <p class="muted">Configura il backup automatico sul tuo Drive.</p>
-              </div>
-              <div style="display:grid;gap:var(--space-2)">
-                <div
-                  style="background:var(--btn);padding:var(--space-2);border-radius:var(--radius-sm);font-size:13px;line-height:1.5">
-                  <strong>Come ottenere il Client ID (Gratis):</strong>
-                  <ol style="margin:8px 0 8px 20px;padding:0">
-                    <li>Vai su <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
-                        style="color:var(--acc)">Google Cloud Console</a>.</li>
-                    <li>Crea un progetto e clicca "Crea Credenziali" → "ID client OAuth".</li>
-                    <li>Scegli "Applicazione Web".</li>
-                    <li>In <strong>Origini JavaScript autorizzate</strong> aggiungi:
-                      <ul style="margin:4px 0 4px 16px;padding:0;list-style-type:disc">
-                        <li><code
-                            style="background:var(--bg);padding:2px 4px;border-radius:4px">http://localhost:8000</code>
-                        </li>
-                        <li><code style="background:var(--bg);padding:2px 4px;border-radius:4px"
-                            id="currentOriginCode"></code> (URL Attuale)</li>
-                      </ul>
-                    </li>
-                    <script>document.getElementById("currentOriginCode").textContent = window.location.origin;</script>
-                    <li>Copia il <strong>Client ID</strong> qui sotto.</li>
-                  </ol>
-                </div>
-                <label for="gdriveClientId" style="margin-top:var(--space-2)">Google Cloud CLIENT_ID</label>
-                <input id="gdriveClientId" type="text" placeholder="123456789012-xxxxx.apps.googleusercontent.com" />
-                <div id="clientIdFeedback" class="muted" style="font-size:12px"></div>
-              </div>
-              <div class="wizard-actions">
-                <span></span>
-                <button class="primary" onclick="window.Wizard.validateAndNext('gdrive')">Verifica e Continua →</button>
-              </div>
-            </div>
-
-            <!-- Step 2: Auth (Was Step 3) -->
-            <div class="wizard-step" data-step="2">
-              <div class="wizard-header">
-                <h3>🔐 Autorizzazione</h3>
-                <p class="muted">Autorizza l'applicazione ad accedere a Drive.</p>
-              </div>
-              <div style="text-align:center;margin:2em 0">
-                <p>Si aprirà un popup di Google per il login.</p>
-              </div>
-              <div class="wizard-actions">
-                <button class="ghost" onclick="window.Wizard.prev('gdrive')">← Indietro</button>
-                <button id="gdriveConnect" class="primary">Autorizza con Google 🔗</button>
-              </div>
-            </div>
-
-            <!-- Dots -->
-            <div class="wizard-steps" id="gdrive-dots">
-              <div class="step-dot active"></div>
-              <div class="step-dot"></div>
-            </div>
-          </div>
-        </div>
-        <!-- Connected -->
+      <!-- Google Drive Panel -->
+      <div id="gdrive-panel" class="tab-panel">
+        <!-- Connected State -->
         <div id="gdriveConnected" style="display:none">
           <div
             style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
@@ -814,12 +656,91 @@
             <button id="gdriveManualBackup" class="ghost">💾 Backup Manuale</button>
           </div>
         </div>
+
+        <!-- Wizard State -->
+        <div id="gdriveDisconnected" class="wizard-container">
+          <!-- Step 1: Config (Was Step 2) -->
+          <div class="wizard-step active" data-step="1">
+            <div class="wizard-header">
+              <h3>📦 Google Drive Backup</h3>
+              <p class="muted">Configura il backup automatico sul tuo Drive.</p>
+            </div>
+            <div style="display:grid;gap:var(--space-2)">
+              <div
+                style="background:var(--btn);padding:var(--space-2);border-radius:var(--radius-sm);font-size:13px;line-height:1.5">
+                <strong>Come ottenere il Client ID (Gratis):</strong>
+                <ol style="margin:8px 0 8px 20px;padding:0">
+                  <li>Vai su <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
+                      style="color:var(--acc)">Google Cloud Console</a>.</li>
+                  <li>Crea un progetto e clicca "Crea Credenziali" → "ID client OAuth".</li>
+                  <li>Scegli "Applicazione Web".</li>
+                  <li>In <strong>Origini JavaScript autorizzate</strong> aggiungi:
+                    <ul style="margin:4px 0 4px 16px;padding:0;list-style-type:disc">
+                      <li><code
+                          style="background:var(--bg);padding:2px 4px;border-radius:4px">http://localhost:8000</code>
+                      </li>
+                      <li><code style="background:var(--bg);padding:2px 4px;border-radius:4px"
+                          id="currentOriginCode"></code> (URL Attuale)</li>
+                    </ul>
+                  </li>
+                  <script>document.getElementById("currentOriginCode").textContent = window.location.origin;</script>
+                  <li>Copia il <strong>Client ID</strong> qui sotto.</li>
+                </ol>
+              </div>
+              <label for="gdriveClientId" style="margin-top:var(--space-2)">Google Cloud CLIENT_ID</label>
+              <input id="gdriveClientId" type="text" placeholder="123456789012-xxxxx.apps.googleusercontent.com" />
+              <div id="clientIdFeedback" class="muted" style="font-size:12px"></div>
+            </div>
+            <div class="wizard-actions">
+              <span></span>
+              <button class="primary" onclick="window.Wizard.validateAndNext('gdrive')">Verifica e Continua →</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Auth (Was Step 3) -->
+          <div class="wizard-step" data-step="2">
+            <div class="wizard-header">
+              <h3>🔐 Autorizzazione</h3>
+              <p class="muted">Autorizza l'applicazione ad accedere a Drive.</p>
+            </div>
+            <div style="text-align:center;margin:2em 0">
+              <p>Si aprirà un popup di Google per il login.</p>
+            </div>
+            <div class="wizard-actions">
+              <button class="ghost" onclick="window.Wizard.prev('gdrive')">← Indietro</button>
+              <button id="gdriveConnect" class="primary">Autorizza con Google 🔗</button>
+            </div>
+          </div>
+
+          <!-- Dots -->
+          <div class="wizard-steps" id="gdrive-dots">
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+          </div>
+        </div>
       </div>
-    </details>
+      <!-- Connected -->
+      <div id="gdriveConnected" style="display:none">
+        <div
+          style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2);background:var(--bg);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">
+          <span style="font-size:20px">✓</span>
+          <div style="flex:1">
+            <div style="font-weight:600">Connesso a Google Drive</div>
+            <div id="gdriveUserEmail" class="muted" style="font-size:12px"></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="gdriveDisconnect">🔌 Disconnetti</button>
+          <button id="gdriveRestore">📥 Ripristina Backup</button>
+          <button id="gdriveManualBackup" class="ghost">💾 Backup Manuale</button>
+        </div>
+      </div>
+  </div>
+  </details>
 
 
-    <section id="list" class="list" style="margin-top:var(--space-3)"></section>
-    <p class="footer">Tutto resta in locale (localStorage). Nessuna dipendenza esterna. Pronto per GitHub Pages.</p>
+  <section id="list" class="list" style="margin-top:var(--space-3)"></section>
+  <p class="footer">Tutto resta in locale (localStorage). Nessuna dipendenza esterna. Pronto per GitHub Pages.</p>
   </div>
 
   <script type="module">
@@ -1015,45 +936,40 @@
 
         for (const row of rows) {
           const el = document.createElement("div");
-          el.className = "card link-card";
+          el.className = "card item";
           el.innerHTML = `
-            <div class="link-header">
-              <div class="link-icon">🔗</div>
-              <div class="link-info">
-                <div class="link-title" title="${escapeAttr(row.title)}">${escapeHtml(row.title || "(senza titolo)")}</div>
-                <a href="${escapeAttr(row.url)}" target="_blank" class="link-url" title="${escapeAttr(row.url)}">${escapeHtml(row.url)}</a>
-              </div>
+        <div class="row">
+          <div class="left">
+            <div class="avatar" aria-hidden="true">🔗</div>
+            <div style="min-width:0">
+              <div style="font-weight:600">${escapeHtml(row.title || "(senza titolo)")}</div>
+              <div class="muted url">${escapeHtml(row.url)}</div>
             </div>
-            
-            <div class="link-summary">${escapeHtml(row.summary || "")}</div>
-            
-            <div class="tags-row">
-              ${row.tags.map(t => `<span class="tag-pill">#${escapeHtml(t)}</span>`).join("")}
-            </div>
-
-            <div class="link-footer">
-              <span>${new Date(row.updated || row.created).toLocaleDateString()}</span>
-              <div class="link-actions">
-                <button class="action-btn" data-act="open" data-id="${row.id}" title="Apri">↗️</button>
-                <button class="action-btn" data-act="copy" data-id="${row.id}" title="Copia Link">📋</button>
-                <button class="action-btn" data-act="edit" data-id="${row.id}" title="Modifica">✏️</button>
-                <button class="action-btn" data-act="del" data-id="${row.id}" title="Elimina" style="color:var(--danger)">🗑️</button>
-              </div>
-            </div>
-          `;
+          </div>
+          <div class="right">
+            <button data-act="open" data-id="${row.id}">Apri</button>
+            <button data-act="copy" data-id="${row.id}">Copia URL</button>
+            <button data-act="edit" data-id="${row.id}">Modifica</button>
+            <button class="warn" data-act="del" data-id="${row.id}">Elimina</button>
+          </div>
+        </div>
+        <div class="muted" style="word-break:break-word">${escapeHtml(row.summary || "")}</div>
+        <div>${row.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join("")}</div>
+        <div class="muted">${new Date(row.updated || row.created).toLocaleString()}</div>
+      `;
           list.appendChild(el);
 
           const editBox = document.createElement("div");
           editBox.className = "editbox";
           editBox.style.display = "none";
           editBox.innerHTML = `
-        <input type="text" value="${escapeAttr(row.title)}" data-field="title" aria-label="Titolo" placeholder="Titolo">
-        <input type="url" value="${escapeAttr(row.url)}" data-field="url" aria-label="URL" placeholder="URL">
-        <textarea data-field="summary" aria-label="Summary / Note" placeholder="Descrizione">${escapeHtml(row.summary || "")}</textarea>
-        <input type="text" value="${escapeAttr(row.tags.join(", "))}" data-field="tags" aria-label="Tag" placeholder="Tags">
+        <input type="text" value="${escapeAttr(row.title)}" data-field="title" aria-label="Titolo">
+        <input type="url" value="${escapeAttr(row.url)}" data-field="url" aria-label="URL">
+        <textarea data-field="summary" aria-label="Summary / Note">${escapeHtml(row.summary || "")}</textarea>
+        <input type="text" value="${escapeAttr(row.tags.join(", "))}" data-field="tags" aria-label="Tag">
         <div class="actions">
-          <button data-act="saveEdit" data-id="${row.id}" class="btn-primary">Salva Modifiche</button>
-          <button data-act="cancelEdit" data-id="${row.id}" class="btn-ghost">Annulla</button>
+          <button data-act="saveEdit" data-id="${row.id}" class="primary">Salva</button>
+          <button data-act="cancelEdit" data-id="${row.id}">Annulla</button>
         </div>
       `;
           el.appendChild(editBox);
