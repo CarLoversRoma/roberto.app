@@ -768,6 +768,31 @@
       });
 
       // =====================================================
+      // HELPER: ROBUST CONFIG PARSER
+      // =====================================================
+      function parseConfig(input) {
+        let configStr = input.trim();
+        // Try to clean up JS object syntax if pasted directly from console
+        // Remove "const firebaseConfig =" part and trailing semicolon
+        configStr = configStr.replace(/^(const|var|let)\s+\w+\s*=\s*/, "").replace(/;$/, "");
+
+        // Remove comments
+        configStr = configStr.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+
+        try {
+          // Try strict JSON parse first
+          return JSON.parse(configStr);
+        } catch (jsonErr) {
+          // Fallback: Try to eval as JS object (for unquoted keys)
+          try {
+            return new Function("return " + configStr)();
+          } catch (evalErr) {
+            throw new Error("Formato non riconosciuto. Assicurati di copiare l'oggetto {...}");
+          }
+        }
+      }
+
+      // =====================================================
       // WIZARD HELPER CLASS
       // =====================================================
       window.Wizard = {
@@ -810,29 +835,8 @@
 
         validateAndNext(service) {
           if (service === 'firebase') {
-            let configStr = $("#firebaseConfig").value.trim();
-            // Try to clean up JS object syntax if pasted directly from console
-            // Remove "const firebaseConfig =" part and trailing semicolon
-            configStr = configStr.replace(/^(const|var|let)\s+\w+\s*=\s*/, "").replace(/;$/, "");
-
-            // Remove comments
-            configStr = configStr.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
-
             try {
-              let cfg;
-              try {
-                // Try strict JSON parse first
-                cfg = JSON.parse(configStr);
-              } catch (jsonErr) {
-                // Fallback: Try to eval as JS object (for unquoted keys)
-                // Security warning: This evaluates user input, but it is client-side only 
-                // and the user is pasting their own config.
-                try {
-                  cfg = new Function("return " + configStr)();
-                } catch (evalErr) {
-                  throw new Error("Formato non riconosciuto. Assicurati di copiare l'oggetto {...}");
-                }
-              }
+              const cfg = parseConfig($("#firebaseConfig").value);
 
               if (!cfg || !cfg.apiKey || !cfg.projectId) {
                 throw new Error("Mancano campi obbligatori (apiKey, projectId, etc)");
@@ -1164,12 +1168,11 @@
           }
 
           $("#firebaseConnect").addEventListener("click", () => {
-            const configStr = $("#firebaseConfig").value.trim();
             try {
-              const config = JSON.parse(configStr);
+              const config = parseConfig($("#firebaseConfig").value);
               connect(config);
             } catch (e) {
-              alert("Configurazione JSON non valida!");
+              alert("Configurazione JSON non valida! " + e.message);
             }
           });
 
