@@ -448,6 +448,52 @@
       justify-content: space-between;
       margin-top: 24px;
     }
+
+    /* === Wizard Steps === */
+    .wizard-step {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .wizard-step.active {
+      display: block;
+    }
+
+    .wizard-steps {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 32px;
+    }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: all 0.3s;
+    }
+
+    .step-dot.active {
+      background: var(--primary);
+      transform: scale(1.2);
+    }
+
+    .step-dot.completed {
+      background: var(--success);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 
   <!-- Favicon (fallback JPG) -->
@@ -1173,7 +1219,7 @@
 
         // Update CLIENT_ID validation feedback
         function updateClientIdValidation(clientId) {
-          const validation = $("#clientIdValidation");
+          const validation = $("#clientIdFeedback");
           if (!validation) return;
 
           if (!clientId) {
@@ -1191,6 +1237,10 @@
 
         // OAuth2 authentication
         async function authenticate() {
+          if (window.location.protocol === 'file:') {
+            alert("⚠️ ATTENZIONE: Google Drive NON funziona aprendo il file direttamente (file://).\n\nDevi avviare un server locale:\n1. Esegui il file 'start_server.bat'\n2. Apri il browser su http://localhost:8000");
+            return false;
+          }
           // Always use custom client ID
           const cid = $("#gdriveClientId") ? $("#gdriveClientId").value.trim() : null;
           if (cid) saveClientId(cid);
@@ -1234,7 +1284,7 @@
 
             tokenClient = google.accounts.oauth2.initTokenClient({
               client_id: clientId,
-              scope: 'https://www.googleapis.com/auth/drive.file',
+              scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email',
               callback: async (response) => {
                 if (response.error) {
                   console.error("Auth error:", response);
@@ -1268,7 +1318,7 @@
               },
             });
 
-            tokenClient.requestAccessToken({ prompt: '' });
+            tokenClient.requestAccessToken({ prompt: 'consent' });
           });
         }
 
@@ -1327,7 +1377,7 @@
               });
             }
             clearCredentials();
-            localStorage.removeItem(GDRIVE_USE_PRESET_KEY);
+            // REMOVED: localStorage.removeItem(GDRIVE_USE_PRESET_KEY);
             updateUI();
           }
         }
@@ -1396,6 +1446,10 @@
             return true;
           } catch (err) {
             console.error("Upload error:", err);
+            if (err.status === 403) {
+              alert("⚠️ Sessione scaduta o permessi insufficienti.\n\nPer favore, ricollegati a Google Drive autorizzando l'accesso.");
+              disconnect(); // Force cleanup
+            }
             return false;
           }
         }
